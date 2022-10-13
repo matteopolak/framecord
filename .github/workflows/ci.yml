@@ -17,4 +17,7 @@ jobs:
         run: yarn
 
       - name: Run ESLint
-        run: yarn run eslint
+        run: yarn run eslint src/**/*.ts
+
+      - name: Run TypeScript
+        run: yarn run tsc --project=tsconfig.json
