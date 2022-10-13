@@ -7,7 +7,7 @@ import {
 	ApplicationCommandType,
 } from 'discord.js';
 
-export class CommandHandler extends Handler {
+export default class CommandHandler extends Handler {
 	@EventHandler()
 	public async interactionCreate(interaction: Interaction<'cached'>) {
 		if (

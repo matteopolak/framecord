@@ -21,9 +21,7 @@ export type CommandResponseValue =
 	| null
 	| void
 	| SendableOptions<CommandInteraction>;
-export type CommandResponse =
-	| Promise<CommandResponseValue>
-	| CommandResponseValue;
+export type CommandResponse = Promise<CommandResponseValue>;
 export type CommandSource = CommandInteraction<'cached'>;
 
 export interface CommandOptions {
@@ -52,7 +50,7 @@ export class Command extends Events {
 	public readonly alias: Set<string> = new Set();
 	public readonly arguments: CommandArgument[];
 	public readonly subcommands: Collection<string, Command> = new Collection();
-	public readonly description: string = '\u200b';
+	public readonly description: string = 'No description.';
 	public readonly enabled = true;
 	public readonly permissions: PermissionsBitField = new PermissionsBitField();
 
@@ -92,8 +90,12 @@ export class Command extends Events {
 		};
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	run(source: CommandSource, ...args: CommandArgumentValue[]): CommandResponse {
+	async run(
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		source: CommandSource,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		...args: CommandArgumentValue[]
+	): CommandResponse {
 		// Command body goes here
 	}
 

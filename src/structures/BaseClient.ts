@@ -34,25 +34,22 @@ export default class BaseClient extends Client {
 
 	public compileCommandEvents<T extends Command | Handler>(object: T) {
 		const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(object));
-		let run = false;
 
 		for (const method of methods) {
-			if (run) {
+			// eslint-disable-next-line @typescript-eslint/ban-types
+			const fn =
 				// eslint-disable-next-line @typescript-eslint/ban-types
-				const fn: Function =
-					// eslint-disable-next-line @typescript-eslint/ban-types
-					(object[method as keyof T] as Function).bind(object);
+				object[method as keyof T] as Function;
 
-				if ('event' in fn) {
-					this['once' in fn && fn.once ? 'once' : 'on'](
-						method as keyof ClientEvents,
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						fn as any
-					);
-				}
+			if ('event' in fn) {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				this['once' in fn && fn.once ? 'once' : 'on'](
+					method as keyof ClientEvents,
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					fn.bind(object) as any
+				);
 			}
-
-			if (method === 'run') run = true;
 		}
 	}
 
@@ -150,7 +147,7 @@ export default class BaseClient extends Client {
 			});
 		}
 
-		await this.application?.commands.set(payload);
+		await this.application?.commands.set(payload, '968627637444558918');
 	}
 
 	public async compileHandlerDirectory(path: string) {
@@ -167,7 +164,8 @@ export default class BaseClient extends Client {
 				return;
 			}
 
-			const HandlerClass: typeof Handler = await import(join(path, id));
+			const HandlerClass: typeof Handler = (await import(join(path, id)))
+				.default;
 
 			this.compileHandler(
 				new HandlerClass({

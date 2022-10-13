@@ -114,10 +114,10 @@ const ARGUMENT_TYPE_TO_FUNCTION_NAME = {
 	[CommandArgumentType.Member]: 'getMember',
 } as const;
 
-type CommandArgumentFilter<T extends CommandArgumentType, R extends boolean> = (
+type CommandArgumentFilter<T extends CommandArgumentType> = (
 	source: CommandInteraction,
-	argument: CommandArgumentValue<T, R>
-) => boolean;
+	argument: CommandArgumentValue<T, true>
+) => Promise<boolean> | boolean;
 
 interface CommandArgumentOptionsBase<
 	T extends CommandArgumentType,
@@ -128,7 +128,7 @@ interface CommandArgumentOptionsBase<
 	type: T;
 	error: string;
 	required?: R;
-	filter?: CommandArgumentFilter<T, R>;
+	filter?: CommandArgumentFilter<T>;
 }
 
 type CommandArgumentOptions<
@@ -145,7 +145,7 @@ export class CommandArgument<
 	public description: string;
 	public required: R | true;
 
-	private filter?: CommandArgumentFilter<T, R>;
+	private filter?: CommandArgumentFilter<CommandArgumentTypes>;
 	private error: string;
 	private options: Partial<CommandArgumentOptionsExtra<T>> = {};
 
@@ -153,7 +153,7 @@ export class CommandArgument<
 		this.type = options.type;
 		this.name = options.name;
 		this.description = options.description;
-		this.filter = options.filter;
+		this.filter = options.filter as CommandArgumentFilter<CommandArgumentTypes>;
 		this.required = options.required ?? true;
 		this.error = options.error;
 
@@ -199,9 +199,13 @@ export class CommandArgument<
 			this.required
 		) as CommandArgumentValue<T, R>;
 
-		if (argument === null || this.filter) {
+		if (this.filter) {
 			try {
-				if (this.filter && !(await this.filter(source, argument))) {
+				if (
+					argument !== null &&
+					this.filter &&
+					!(await this.filter(source, argument))
+				) {
 					throw new Error('input did not pass filter');
 				}
 			} catch {

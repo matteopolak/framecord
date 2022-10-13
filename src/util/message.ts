@@ -17,12 +17,14 @@ export type SendableOptions<T extends Sendable> = T extends CommandInteraction
 	? MessageEditOptions
 	: MessageCreateOptions;
 
+/// Creates a payload with the provided embed
 export function embed(options: APIEmbed) {
 	return {
 		embeds: [options],
 	};
 }
 
+/// Sends a payload to a sendable location, like a channel or user
 export async function message<T extends Sendable>(
 	channel: T,
 	options: SendableOptions<T>
