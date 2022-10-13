@@ -58,4 +58,3 @@ export async function message<T extends Sendable>(
 
 	/* eslint-enable @typescript-eslint/ban-ts-comment */
 }
-asddasdasadsadssad;
