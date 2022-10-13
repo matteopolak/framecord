@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 
-export async function isDirectory(path: string) {
+async function isDirectory(path: string) {
 	return (await fs.stat(path)).isDirectory();
 }
 

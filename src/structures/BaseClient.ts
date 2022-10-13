@@ -1,13 +1,39 @@
-import { Client, ClientEvents, Collection } from 'discord.js';
+import {
+	ApplicationCommandData,
+	ApplicationCommandType,
+	Client,
+	ClientEvents,
+	ClientOptions,
+	Collection,
+} from 'discord.js';
 import { Command } from '@structs/command/Command';
 import { join } from 'node:path';
 import { traverse } from '@util/fs';
+import { Handler } from '@structs/Handler';
+
+export interface BaseOptions {
+	registerCommandsOnReady?: boolean;
+}
+
+export interface Flags {
+	commandsRegistered: boolean;
+}
 
 export default class BaseClient extends Client {
 	public commands: Collection<string, Command> = new Collection();
+	public settings: BaseOptions;
+	public initialized = false;
 
-	public registerEvents(command: Command) {
-		const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(command));
+	private flags: Partial<Flags> = {};
+
+	constructor(options: ClientOptions & BaseOptions) {
+		super(options);
+
+		this.settings = options;
+	}
+
+	public compileCommandEvents<T extends Command | Handler>(object: T) {
+		const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(object));
 		let run = false;
 
 		for (const method of methods) {
@@ -15,7 +41,7 @@ export default class BaseClient extends Client {
 				// eslint-disable-next-line @typescript-eslint/ban-types
 				const fn: Function =
 					// eslint-disable-next-line @typescript-eslint/ban-types
-					(command[method as keyof Command] as Function).bind(command);
+					(object[method as keyof T] as Function).bind(object);
 
 				if ('event' in fn) {
 					this['once' in fn && fn.once ? 'once' : 'on'](
@@ -30,11 +56,19 @@ export default class BaseClient extends Client {
 		}
 	}
 
-	public registerCommand(
+	public compileHandler(handler: Handler) {
+		this.compileCommandEvents(handler);
+	}
+
+	public compileCommand(
 		command: Command,
 		parent: Collection<string, Command> = this.commands
 	) {
 		let required = false;
+
+		if (command.permissions.bitfield > 0 && parent !== this.commands) {
+			throw new Error('permissions are only permitted on parent commands');
+		}
 
 		for (const argument of command.arguments) {
 			if (!argument.required && required) {
@@ -49,9 +83,11 @@ export default class BaseClient extends Client {
 		for (const alias of command.alias) {
 			parent.set(alias, command);
 		}
+
+		this.compileCommandEvents(command);
 	}
 
-	public async registerCommandDirectory(
+	public async compileCommandDirectory(
 		path: string,
 		parent: Collection<string, Command> = this.commands
 	) {
@@ -66,7 +102,7 @@ export default class BaseClient extends Client {
 					const command = parent.get(childPath);
 
 					count += command
-						? await this.registerCommandDirectory(
+						? await this.compileCommandDirectory(
 								join(path, childPath),
 								command.subcommands
 						  )
@@ -80,7 +116,7 @@ export default class BaseClient extends Client {
 
 			const CommandClass: typeof Command = await import(join(path, id));
 
-			this.registerCommand(
+			this.compileCommand(
 				new CommandClass({
 					client: this,
 					id,
@@ -88,5 +124,62 @@ export default class BaseClient extends Client {
 				parent
 			);
 		}
+	}
+
+	public async registerCommands() {
+		if (this.flags.commandsRegistered) return;
+
+		const payload: ApplicationCommandData[] = [];
+
+		for (const [, command] of this.commands) {
+			const options = command.subcommands
+				.filter(c => c.enabled)
+				.map(c => c.getSlashData());
+
+			if (command.enabled)
+				options.push(...command.arguments.map(a => a.getSlashData()));
+
+			if (options.length === 0 && !command.enabled) continue;
+
+			payload.push({
+				type: ApplicationCommandType.ChatInput,
+				name: command.id,
+				description: command.description,
+				options,
+				defaultMemberPermissions: command.permissions,
+			});
+		}
+
+		await this.application?.commands.set(payload);
+	}
+
+	public async compileHandlerDirectory(path: string) {
+		const paths = traverse(path);
+
+		for (;;) {
+			const { value: id, done } = await paths.next();
+
+			if (done) {
+				for (const childPath of id) {
+					await this.compileCommandDirectory(join(path, childPath));
+				}
+
+				return;
+			}
+
+			const HandlerClass: typeof Handler = await import(join(path, id));
+
+			this.compileHandler(
+				new HandlerClass({
+					client: this,
+				})
+			);
+		}
+	}
+
+	public async init() {
+		await this.compileHandlerDirectory(join(__dirname, '..', 'handlers'));
+
+		this.initialized = true;
 	}
 }

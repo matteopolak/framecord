@@ -6,6 +6,15 @@ import {
 	Role,
 	GuildMember,
 	CommandInteractionOptionResolver,
+	ApplicationCommandOptionData,
+	ApplicationCommandAttachmentOption,
+	ApplicationCommandNumericOption,
+	ApplicationCommandUserOption,
+	ApplicationCommandBooleanOption,
+	ApplicationCommandChannelOption,
+	ApplicationCommandMentionableOption,
+	ApplicationCommandRoleOption,
+	ApplicationCommandStringOption,
 } from 'discord.js';
 import { CommandSource } from '@structs/command/Command';
 
@@ -60,6 +69,31 @@ interface CommandArgumentValueMap {
 	[CommandArgumentType.Member]: GuildMember;
 }
 
+type CommandArgumentOptionsExtra<T> = Omit<
+	T extends CommandArgumentType.String
+		? ApplicationCommandStringOption
+		: T extends CommandArgumentType.Integer
+		? ApplicationCommandNumericOption
+		: T extends CommandArgumentType.Boolean
+		? ApplicationCommandBooleanOption
+		: T extends CommandArgumentType.User
+		? ApplicationCommandUserOption
+		: T extends CommandArgumentType.Channel
+		? ApplicationCommandChannelOption
+		: T extends CommandArgumentType.Role
+		? ApplicationCommandRoleOption
+		: T extends CommandArgumentType.Mentionable
+		? ApplicationCommandMentionableOption
+		: T extends CommandArgumentType.Number
+		? ApplicationCommandNumericOption
+		: T extends CommandArgumentType.Attachment
+		? ApplicationCommandAttachmentOption
+		: T extends CommandArgumentType.Member
+		? ApplicationCommandUserOption
+		: unknown,
+	'type' | 'description' | 'name' | 'required'
+>;
+
 export type CommandArgumentValue<
 	T extends CommandArgumentType = CommandArgumentTypes,
 	R extends boolean = true
@@ -85,7 +119,7 @@ type CommandArgumentFilter<T extends CommandArgumentType, R extends boolean> = (
 	argument: CommandArgumentValue<T, R>
 ) => boolean;
 
-interface CommandArgumentOptions<
+interface CommandArgumentOptionsBase<
 	T extends CommandArgumentType,
 	R extends boolean
 > {
@@ -96,6 +130,11 @@ interface CommandArgumentOptions<
 	required?: R;
 	filter?: CommandArgumentFilter<T, R>;
 }
+
+type CommandArgumentOptions<
+	T extends CommandArgumentType,
+	R extends boolean
+> = CommandArgumentOptionsBase<T, R> & CommandArgumentOptionsExtra<T>;
 
 export class CommandArgument<
 	T extends CommandArgumentType = CommandArgumentTypes,
@@ -108,6 +147,7 @@ export class CommandArgument<
 
 	private filter?: CommandArgumentFilter<T, R>;
 	private error: string;
+	private options: Partial<CommandArgumentOptionsExtra<T>> = {};
 
 	constructor(options: CommandArgumentOptions<T, R>) {
 		this.type = options.type;
@@ -116,6 +156,39 @@ export class CommandArgument<
 		this.filter = options.filter;
 		this.required = options.required ?? true;
 		this.error = options.error;
+
+		/* eslint-disable @typescript-eslint/ban-ts-comment */
+
+		if ('autocomplete' in options && !options.autocomplete) {
+			this.options.autocomplete = options.autocomplete;
+		}
+
+		if ('choices' in options) {
+			// @ts-ignore
+			this.options.choices = options.choices;
+		}
+
+		if ('minValue' in options) {
+			// @ts-ignore
+			this.options.minValue = options.minValue;
+		}
+
+		if ('maxValue' in options) {
+			// @ts-ignore
+			this.options.maxValue = options.maxValue;
+		}
+
+		if ('minLength' in options) {
+			// @ts-ignore
+			this.options.minLength = options.minLength;
+		}
+
+		if ('maxLength' in options) {
+			// @ts-ignore
+			this.options.maxLength = options.maxLength;
+		}
+
+		/* eslint-enable @typescript-eslint/ban-ts-comment */
 	}
 
 	async run(source: CommandSource): Promise<CommandArgumentResponse<T, R>> {
@@ -142,6 +215,19 @@ export class CommandArgument<
 		return {
 			valid: true,
 			value: argument,
+		};
+	}
+
+	public getSlashData(): ApplicationCommandOptionData {
+		return {
+			...this.options,
+			type: (this.type === CommandArgumentType.Member
+				? CommandArgumentType.User
+				: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+				  this.type) as any,
+			name: this.name,
+			description: this.description,
+			required: this.required,
 		};
 	}
 }
