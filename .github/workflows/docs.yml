@@ -23,7 +23,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'yarn'
     - run: yarn
-    - run: yarn run docs --if-present
+    - run: yarn run docs
     - name: Deploy
       uses: dmnemec/copy_file_to_another_repo_action@main
       env:
