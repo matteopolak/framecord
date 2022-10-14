@@ -18,9 +18,9 @@ import { IntentsBitField } from 'discord.js';
 import { Client, Command } from 'discord-template';
 
 const client = new Client({
-	intents: [
-		IntentsBitField.Flags.Guilds
-	]
+  intents: [
+    IntentsBitField.Flags.Guilds
+  ]
 });
 
 // Client#compileCommandDirectory takes an *absolute path* to the
@@ -43,34 +43,34 @@ client.login(process.env.TOKEN);
 `src/commands/helloworld.ts`
 ```typescript
 import {
-	Command,
-	CommandOptions,
-	CommandResponse,
-	CommandSource,
-	EventHandler
+  Command,
+  CommandOptions,
+  CommandResponse,
+  CommandSource,
+  EventHandler
 } from 'discord-template';
 
 // *Must* be a default export in order to work properly when
 // adding an entire command directory
 export default class HelloWorld extends Command {
-	constructor(options: CommandOptions) {
-		super(options);
-	}
+  constructor(options: CommandOptions) {
+    super(options);
+  }
 
-	// *Must* be an asynchronous function
-	public async run(source: CommandSource): CommandResponse {
-		return `Hello, ${source.user.username}!`;
-	}
+  // *Must* be an asynchronous function
+  public async run(source: CommandSource): CommandResponse {
+    return `Hello, ${source.user.username}!`;
+  }
 
-	// The @EventHandler decorator is used to define when
-	// a method should be treated as an event listener
-	//
-	// It currently only has the `once` option, which (when true)
-	// will stop listening to the event after it is fired once
-	@EventHandler(once=true)
-	public async ready() {
-		// `client` is a reference to the Client
-		console.log(`I just logged in as ${this.client.user.username}!`);
-	}
+  // The @EventHandler decorator is used to define when
+  // a method should be treated as an event listener
+  //
+  // It currently only has the `once` option, which (when true)
+  // will stop listening to the event after it is fired once
+  @EventHandler(once=true)
+  public async ready() {
+    // `client` is a reference to the Client
+    console.log(`I just logged in as ${this.client.user.username}!`);
+  }
 }
 ```
