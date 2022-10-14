@@ -5,8 +5,7 @@
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
-		"publish": "npm publish --access public"
+		"build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json"
 	},
 	"repository": {
 		"type": "git",
