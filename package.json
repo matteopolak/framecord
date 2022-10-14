@@ -1,5 +1,5 @@
 {
-	"name": "discord-template",
+	"name": "@matteopolak/discord-template",
 	"version": "1.0.0",
 	"description": "A modular and extensible framework for Discord bot development",
 	"main": "dist/index.js",
