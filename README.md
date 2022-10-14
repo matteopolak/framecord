@@ -2,7 +2,7 @@
 
 ![Build Status](https://github.com/matteopolak/discord-template/actions/workflows/ci.yml/badge.svg)
 
-[discord-template](./) is a modular and extensible framework for creating Discord bots, created with [discord.js](https://github.com/discordjs/discord.js).
+[discord-template](https://github.com/matteopolak/discord-template) is a modular and extensible framework for creating Discord bots, created with [discord.js](https://github.com/discordjs/discord.js).
 
 ## "Hello, world!"
 
