@@ -1,9 +1,11 @@
 {
-	"name": "@matteopolak/discord-template",
+	"name": "discord-template",
 	"version": "1.0.0",
-	"main": "src/index.ts",
+	"description": "A modular and extensible framework for Discord bot development",
+	"main": "dist/index.js",
 	"scripts": {
-		"start": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json && cd dist && node test.js"
+		"build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
+		"prepublish": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json"
 	},
 	"repository": {
 		"type": "git",
@@ -23,5 +25,6 @@
 	},
 	"dependencies": {
 		"discord.js": "^14.6.0"
-	}
+	},
+	"types": "dist/index.d.ts"
 }
