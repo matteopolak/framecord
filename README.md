@@ -53,10 +53,6 @@ import {
 // *Must* be a default export in order to work properly when
 // adding an entire command directory
 export default class HelloWorld extends Command {
-  constructor(options: CommandOptions) {
-    super(options);
-  }
-
   // *Must* be an asynchronous function
   public async run(source: CommandSource): CommandResponse {
     return `Hello, ${source.user.username}!`;
