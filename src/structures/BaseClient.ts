@@ -77,9 +77,7 @@ export default class BaseClient extends Client {
 			required = argument.required;
 		}
 
-		for (const alias of command.alias) {
-			parent.set(alias, command);
-		}
+		parent.set(command.id, command);
 
 		this.compileCommandEvents(command);
 	}
@@ -116,7 +114,7 @@ export default class BaseClient extends Client {
 			this.compileCommand(
 				new CommandClass({
 					client: this,
-					id,
+					id: id.slice(0, -3),
 				}),
 				parent
 			);

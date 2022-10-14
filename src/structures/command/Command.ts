@@ -47,7 +47,6 @@ export type CommandCheckResponse =
 
 export class Command extends Events {
 	public readonly id: string;
-	public readonly alias: Set<string> = new Set();
 	public readonly arguments: CommandArgument[];
 	public readonly subcommands: Collection<string, Command> = new Collection();
 	public readonly description: string = 'No description.';
@@ -62,9 +61,6 @@ export class Command extends Events {
 		this.arguments = [];
 		this.id = options.id;
 		this.client = options.client;
-
-		// add the command id as an alias
-		this.alias.add(this.id);
 	}
 
 	async check(source: CommandSource): Promise<CommandCheckResponse> {

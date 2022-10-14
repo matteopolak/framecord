@@ -1,7 +1,6 @@
 {
 	"name": "@matteopolak/discord-template",
 	"version": "1.0.0",
-	"description": "",
 	"main": "src/index.ts",
 	"scripts": {
 		"start": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json && cd dist && node test.js"
