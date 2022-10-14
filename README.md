@@ -5,6 +5,10 @@
 
 [framecord](https://github.com/matteopolak/framecord) is a modular and extensible framework for creating Discord bots, created with [discord.js](https://github.com/discordjs/discord.js).
 
+## Documentation
+
+Check out the documentation at **[matteopolak.com/docs/framecord](https://matteopolak.com/docs/framecord)**.
+
 ## "Hello, world!"
 
 The setup below will do the following:

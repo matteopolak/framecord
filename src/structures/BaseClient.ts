@@ -26,7 +26,7 @@ export interface Flags {
  * @example
  * ```typescript
  * const client = new Client({
- * 	intents: [IntentsBitField.Flags.Guilds],
+ *   intents: [IntentsBitField.Flags.Guilds],
  * });
  *
  * await client.compileCommandDirectory(join(__dirname, 'commands'));

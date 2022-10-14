@@ -54,50 +54,50 @@ export type CommandCheckResponse =
  * @example
  * ```typescript
  * class BanUser extends Command {
- * 	constructor(options: CommandOptions) {
- * 		super(options);
+ *   constructor(options: CommandOptions) {
+ *     super(options);
  *
- * 		// The name of the command
- * 		this.name = 'ban';
- * 		// A description of the command
- * 		this.description = 'Bans a user from the server';
+ *     // The name of the command
+ *     this.name = 'ban';
+ *     // A description of the command
+ *     this.description = 'Bans a user from the server';
  *
- * 		this.arguments.push(
- * 			new CommandArgument({
- * 				// The type of argument
- * 				type: CommandArgumentType.User,
- * 				// The name of the argument
- * 				name: 'user',
- * 				// A description of the argument
- * 				description: 'The user to ban from the server',
- * 				// The (optional) filter that the argument must pass
- * 				filter: (source, user) => source.user.id !== user.id,
- * 				// The error shown to the user if the filter is not passed
- * 				error: 'You cannot ban yourself',
- * 			}),
- * 			new CommandArgument({
- * 				type: CommandArgumentType.String,
- * 				name: 'reason',
- * 				description: 'The reason for the punishment',
- * 				// Specific property for `CommandArgumentType.String`
- * 				maxLength: 128,
- * 				// Whether the argument is required
- * 				required: false,
- * 			})
- * 		);
- * 	}
+ *     this.arguments.push(
+ *       new CommandArgument({
+ *         // The type of argument
+ *         type: CommandArgumentType.User,
+ *         // The name of the argument
+ *         name: 'user',
+ *         // A description of the argument
+ *         description: 'The user to ban from the server',
+ *         // The (optional) filter that the argument must pass
+ *         filter: (source, user) => source.user.id !== user.id,
+ *         // The error shown to the user if the filter is not passed
+ *         error: 'You cannot ban yourself',
+ *       }),
+ *       new CommandArgument({
+ *         type: CommandArgumentType.String,
+ *         name: 'reason',
+ *         description: 'The reason for the punishment',
+ *         // Specific property for `CommandArgumentType.String`
+ *         maxLength: 128,
+ *         // Whether the argument is required
+ *         required: false,
+ *       })
+ *     );
+ *   }
  *
- * 	// The first argument is the source of the command (i.e. a `CommandInteraction`).
- * 	// Remaining arguments are passed in the same order as they are provided in Command#arguments.
- * 	public async run(source: CommandSource, user: User, reason?: string) {
- * 		try {
- * 			await source.guild.members.ban(user, { reason });
+ *   // The first argument is the source of the command (i.e. a `CommandInteraction`).
+ *   // Remaining arguments are passed in the same order as they are provided in Command#arguments.
+ *   public async run(source: CommandSource, user: User, reason?: string) {
+ *     try {
+ *       await source.guild.members.ban(user, { reason });
  *
- * 			return `**${escapeMarkdown(user.tag)}** has been banned.`;
- * 		} catch {
- * 			throw `${user} could not be banned.`;
- * 		}
- * 	}
+ *       return `**${escapeMarkdown(user.tag)}** has been banned.`;
+ *     } catch {
+ *       throw `${user} could not be banned.`;
+ *     }
+ *   }
  * }
  * ```
  */
