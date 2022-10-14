@@ -10,7 +10,11 @@ export default class ReadyHandler extends Handler {
 			);
 
 		if (this.client.settings.registerCommandsOnReady !== false) {
-			this.client.registerCommands();
+			await this.client.registerCommands();
+		}
+
+		if (this.client.settings.verbose !== false) {
+			console.log(`Logged in as ${this.client.user!.tag}!`);
 		}
 	}
 }

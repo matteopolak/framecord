@@ -13,6 +13,7 @@ import { Handler } from '@structs/Handler';
 
 export interface BaseOptions {
 	registerCommandsOnReady?: boolean;
+	verbose?: boolean;
 }
 
 export interface Flags {
