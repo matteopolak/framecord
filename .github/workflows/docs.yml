@@ -27,6 +27,6 @@ jobs:
         source_file: './framecord'
         destination_repo: 'matteopolak/website'
         destination_branch: 'gh-pages'
-        destination_folder: 'docs'
+        destination_folder: 'dist/docs'
         user_email: 'matteopolak@hotmail.com'
         user_name: 'matteopolak'
