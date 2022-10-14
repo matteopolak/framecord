@@ -8,6 +8,7 @@ interface HandlerOptions {
  * The base handler to extend from.
  *
  * @example
+ * ```typescript
  * export default class ReadyHandler extends Handler {
  * 	// @EventHandler denotes an event listener, with the event being
  * 	// the name of the method
@@ -49,6 +50,7 @@ interface HandlerOptions {
  * 		}
  * 	}
  * }
+ * ```
  */
 export class Handler extends Events {
 	/** A reference to the main client */
