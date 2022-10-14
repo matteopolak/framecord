@@ -17,14 +17,14 @@ export type SendableOptions<T extends Sendable> = T extends CommandInteraction
 	? MessageEditOptions
 	: MessageCreateOptions;
 
-/// Creates a payload with the provided embed
+/** Creates a payload with the provided embed */
 export function embed(options: APIEmbed) {
 	return {
 		embeds: [options],
 	};
 }
 
-/// Sends a payload to a sendable location, like a channel or user
+/** Sends a payload to a sendable location, like a channel or user */
 export async function message<T extends Sendable>(
 	channel: T,
 	options: SendableOptions<T>
@@ -32,9 +32,9 @@ export async function message<T extends Sendable>(
 	if (options.embeds) {
 		for (const embed of options.embeds) {
 			if (!('toJSON' in embed)) {
-				embed.color = config.formatting.embedColour;
+				embed.color = config.formatting.colour;
 
-				if (config.formatting.padEmbedFields && embed.fields) {
+				if (config.formatting.padFields && embed.fields) {
 					for (const field of embed.fields) {
 						field.value = `${field.value}\n\u200b`;
 					}

@@ -1,7 +1,7 @@
 export const config = {
-	// ...
+	/** Formatting options for messages sent from the client */
 	formatting: {
-		padEmbedFields: true,
-		embedColour: 0xffffff,
+		padFields: true,
+		colour: 0xffffff,
 	},
 };

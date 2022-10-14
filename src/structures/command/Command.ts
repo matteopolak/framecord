@@ -26,7 +26,7 @@ export type CommandSource = CommandInteraction<'cached'>;
 
 export interface CommandOptions {
 	client: Client;
-	id: string;
+	name: string;
 }
 
 export interface CommandExt {
@@ -38,7 +38,7 @@ export type CommandCheckResponse =
 	| {
 			valid: false;
 			value: string;
-			source: string;
+			source?: string;
 	  }
 	| {
 			valid: true;
@@ -46,24 +46,50 @@ export type CommandCheckResponse =
 	  };
 
 export class Command extends Events {
-	public readonly id: string;
+	/** The name of the slash command (same as file name by default) */
+	public readonly name: string;
+
+	/**
+	 * An array of command arguments, values are applied to the `run` method
+	 * in the same order that they are provided here
+	 */
 	public readonly arguments: CommandArgument[];
+
+	/**
+	 * A `Collection` of subcommands, automatically populated when
+	 * registering a command folder
+	 */
 	public readonly subcommands: Collection<string, Command> = new Collection();
+
+	/** The description of the slash command */
 	public readonly description: string = 'No description.';
+
+	/** Whether the command should be enabled */
 	public readonly enabled = true;
+
+	/** The permissions required to use the slash command */
 	public readonly permissions: PermissionsBitField = new PermissionsBitField();
 
+	/** A reference to the main client */
 	protected readonly client: Client;
 
 	constructor(options: CommandOptions) {
 		super();
 
 		this.arguments = [];
-		this.id = options.id;
+		this.name = options.name;
 		this.client = options.client;
 	}
 
+	/** Validates a `CommandSource` */
 	async check(source: CommandSource): Promise<CommandCheckResponse> {
+		if (!source.member.permissions.has(this.permissions)) {
+			return {
+				valid: false,
+				value: 'Insufficient permissions.',
+			};
+		}
+
 		const args: CommandArgumentValue[] = [];
 
 		for (const argument of this.arguments) {
@@ -86,6 +112,7 @@ export class Command extends Events {
 		};
 	}
 
+	/** Executed when the slash command is used */
 	async run(
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		source: CommandSource,
@@ -95,10 +122,15 @@ export class Command extends Events {
 		// Command body goes here
 	}
 
-	init() {
+	/** Initialized when the command is compiled */
+	async init() {
 		// Initialization code goes here
 	}
 
+	/**
+	 * Returns a JSON- and Discord API-compatible object to register the
+	 * command (and it's subcommands) as slash commands
+	 */
 	public getSlashData(): ApplicationCommandOptionData {
 		const options = this.subcommands
 			.filter(c => c.enabled)
@@ -114,7 +146,7 @@ export class Command extends Events {
 				this.subcommands.size > 0
 					? ApplicationCommandOptionType.SubcommandGroup
 					: ApplicationCommandOptionType.Subcommand,
-			name: this.id,
+			name: this.name,
 			description: this.description ?? '\u200b',
 			options: options as Exclude<
 				ApplicationCommandOptionData,

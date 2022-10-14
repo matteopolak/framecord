@@ -5,7 +5,7 @@ async function isDirectory(path: string) {
 	return (await fs.stat(path)).isDirectory();
 }
 
-/// Recursively traverses a directory
+/** Recursively traverses a directory */
 export async function* traverse(path: string) {
 	const directories = [];
 	const paths = await fs.readdir(path);

@@ -140,20 +140,37 @@ export class CommandArgument<
 	T extends CommandArgumentType = CommandArgumentTypes,
 	R extends boolean = boolean
 > {
+	/**
+	 * The type of argument. For example, `CommandArgumentType.User` will require
+	 * the executor to provide a `User`
+	 */
 	public type: T;
+
+	/** The name of the slash command argument */
 	public name: string;
+
+	/** The description of the slash command argument */
 	public description: string;
+
+	/** Whether the argument must be provided */
 	public required: R | true;
 
+	/** Additional filter that must be passed */
 	private filter?: CommandArgumentFilter<CommandArgumentTypes>;
-	private error: string;
+
+	/** The error to display if the filter is not passed */
+	private error?: string;
+
+	/** Additional options for the argument */
 	private options: Partial<CommandArgumentOptionsExtra<T>> = {};
 
 	constructor(options: CommandArgumentOptions<T, R>) {
 		this.type = options.type;
 		this.name = options.name;
 		this.description = options.description;
-		this.filter = options.filter as CommandArgumentFilter<CommandArgumentTypes>;
+		this.filter = options.filter as
+			| CommandArgumentFilter<CommandArgumentTypes>
+			| undefined;
 		this.required = options.required ?? true;
 		this.error = options.error;
 
@@ -189,8 +206,15 @@ export class CommandArgument<
 		}
 
 		/* eslint-enable @typescript-eslint/ban-ts-comment */
+
+		if (this.filter && !this.error) {
+			throw new Error(
+				'the "error" option must be provided when the "filter" is provided'
+			);
+		}
 	}
 
+	/** Executes the argument and returns a validation response */
 	async run(source: CommandSource): Promise<CommandArgumentResponse<T, R>> {
 		const argument = (
 			source.options as CommandInteractionOptionResolver<'cached'>
@@ -211,7 +235,7 @@ export class CommandArgument<
 			} catch {
 				return {
 					valid: false,
-					value: this.error,
+					value: this.error!,
 				};
 			}
 		}
@@ -222,6 +246,7 @@ export class CommandArgument<
 		};
 	}
 
+	/** Gets the Discord-compatible slash data */
 	public getSlashData(): ApplicationCommandOptionData {
 		return {
 			...this.options,

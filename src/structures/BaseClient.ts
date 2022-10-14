@@ -21,10 +21,16 @@ export interface Flags {
 }
 
 export default class BaseClient extends Client {
+	/** A `Collection` of all commands */
 	public commands: Collection<string, Command> = new Collection();
+
+	/** The settings provided to the client */
 	public settings: BaseOptions;
+
+	/** Whether the client has been initialized */
 	public initialized = false;
 
+	/** Internal flags to ensure certain methods aren't run multiple times */
 	private flags: Partial<Flags> = {};
 
 	constructor(options: ClientOptions & BaseOptions) {
@@ -33,7 +39,8 @@ export default class BaseClient extends Client {
 		this.settings = options;
 	}
 
-	public compileCommandEvents<T extends Command | Handler>(object: T) {
+	/** Registers the event handlers in a command or handler */
+	private compileCommandEvents<T extends Command | Handler>(object: T) {
 		const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(object));
 
 		for (const method of methods) {
@@ -54,10 +61,12 @@ export default class BaseClient extends Client {
 		}
 	}
 
+	/** Registers a single handler */
 	public compileHandler(handler: Handler) {
 		this.compileCommandEvents(handler);
 	}
 
+	/** Registers a single command */
 	public compileCommand(
 		command: Command,
 		parent: Collection<string, Command> = this.commands
@@ -78,11 +87,13 @@ export default class BaseClient extends Client {
 			required = argument.required;
 		}
 
-		parent.set(command.id, command);
+		parent.set(command.name, command);
 
+		command.init();
 		this.compileCommandEvents(command);
 	}
 
+	/** Registers and compiles a directory of commands */
 	public async compileCommandDirectory(
 		path: string,
 		parent: Collection<string, Command> = this.commands
@@ -115,40 +126,14 @@ export default class BaseClient extends Client {
 			this.compileCommand(
 				new CommandClass({
 					client: this,
-					id: id.slice(0, -3),
+					name: id.slice(0, -3),
 				}),
 				parent
 			);
 		}
 	}
 
-	public async registerCommands() {
-		if (this.flags.commandsRegistered) return;
-
-		const payload: ApplicationCommandData[] = [];
-
-		for (const [, command] of this.commands) {
-			const options = command.subcommands
-				.filter(c => c.enabled)
-				.map(c => c.getSlashData());
-
-			if (command.enabled)
-				options.push(...command.arguments.map(a => a.getSlashData()));
-
-			if (options.length === 0 && !command.enabled) continue;
-
-			payload.push({
-				type: ApplicationCommandType.ChatInput,
-				name: command.id,
-				description: command.description,
-				options,
-				defaultMemberPermissions: command.permissions,
-			});
-		}
-
-		await this.application?.commands.set(payload, '968627637444558918');
-	}
-
+	/** Compiles and registers a directory of handlers */
 	public async compileHandlerDirectory(path: string) {
 		const paths = traverse(path);
 
@@ -174,9 +159,37 @@ export default class BaseClient extends Client {
 		}
 	}
 
-	public async init() {
-		await this.compileHandlerDirectory(join(__dirname, '..', 'handlers'));
+	/** Registers all active commands with the Discord API */
+	public async registerCommands() {
+		if (this.flags.commandsRegistered) return;
 
+		const payload: ApplicationCommandData[] = [];
+
+		for (const [, command] of this.commands) {
+			if (!command.enabled) continue;
+
+			const options = command.subcommands
+				.filter(c => c.enabled)
+				.map(c => c.getSlashData());
+
+			options.push(...command.arguments.map(a => a.getSlashData()));
+			payload.push({
+				type: ApplicationCommandType.ChatInput,
+				name: command.name,
+				description: command.description,
+				options,
+				defaultMemberPermissions: command.permissions,
+			});
+		}
+
+		await this.application?.commands.set(payload, '968627637444558918');
+	}
+
+	/** Initializes the client. This *must* the run before the client logs in */
+	public async init() {
+		if (this.initialized) return;
 		this.initialized = true;
+
+		await this.compileHandlerDirectory(join(__dirname, '..', 'handlers'));
 	}
 }

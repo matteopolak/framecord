@@ -6,6 +6,7 @@ interface HandlerOptions {
 }
 
 export class Handler extends Events {
+	/** A reference to the main client */
 	protected client: BaseClient;
 
 	constructor(options: HandlerOptions) {
