@@ -8,7 +8,7 @@
 
 The setup below will do the following:
 1. Create a slash command called `/helloworld` that outputs the message `Hello {user}!`
-2. Prints `I just logged in as {username}!` to the console when the `ready` event is fired
+2. Print `I just logged in as {username}!` to the console when the `ready` event is fired
 
 `src/index.ts`
 ```typescript
