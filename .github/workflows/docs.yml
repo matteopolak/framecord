@@ -30,7 +30,7 @@ jobs:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }} 
       with:
         source_file: './docs'
-        destination_repo: 'website/gh-pages'
+        destination_repo: 'matteopolak/website'
         destination_folder: 'docs/framework'
         user_email: 'matteopolak@hotmail.com'
         user_name: 'matteopolak'
