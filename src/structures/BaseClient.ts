@@ -20,6 +20,23 @@ export interface Flags {
 	commandsRegistered: boolean;
 }
 
+/**
+ * The main client.
+ *
+ * @example
+ * ```typescript
+ * const client = new Client({
+ * 	intents: [IntentsBitField.Flags.Guilds],
+ * });
+ *
+ * await client.compileCommandDirectory(join(__dirname, 'commands'));
+ * await client.compileHandlerDirectory(join(__dirname, 'handlers'));
+ *
+ * await client.init();
+ *
+ * client.login(process.env.TOKEN);
+ * ```
+ */
 export default class BaseClient extends Client {
 	/** A `Collection` of all commands */
 	public commands: Collection<string, Command> = new Collection();
