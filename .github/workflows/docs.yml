@@ -29,9 +29,9 @@ jobs:
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }} 
       with:
-        source_file: './docs'
+        source_file: './framework'
         destination_repo: 'matteopolak/website'
         destination_branch: 'gh-pages'
-        destination_folder: 'docs/framework'
+        destination_folder: 'docs'
         user_email: 'matteopolak@hotmail.com'
         user_name: 'matteopolak'
