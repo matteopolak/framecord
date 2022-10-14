@@ -1,5 +1,5 @@
 {
-	"name": "@matteopolak/discord-template",
+	"name": "@matteopolak/framecord",
 	"version": "1.0.1",
 	"description": "A modular and extensible framework for Discord bot development",
 	"main": "dist/index.js",
@@ -9,14 +9,14 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/matteopolak/discord-template.git"
+		"url": "git+https://github.com/matteopolak/framecord.git"
 	},
 	"author": "Matthew Polak <contact@matteopolak.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/matteopolak/discord-template/issues"
+		"url": "https://github.com/matteopolak/framecord/issues"
 	},
-	"homepage": "https://github.com/matteopolak/discord-template#readme",
+	"homepage": "https://github.com/matteopolak/framecord#readme",
 	"devDependencies": {
 		"@typescript-eslint/eslint-plugin": "^5.40.0",
 		"@typescript-eslint/parser": "^5.40.0",

@@ -1,8 +1,8 @@
-# Discord Template 🤖
+# Framecord 🤖
 
-![Build Status](https://github.com/matteopolak/discord-template/actions/workflows/ci.yml/badge.svg)
+![Build Status](https://github.com/matteopolak/framecord/actions/workflows/ci.yml/badge.svg)
 
-[discord-template](https://github.com/matteopolak/discord-template) is a modular and extensible framework for creating Discord bots, created with [discord.js](https://github.com/discordjs/discord.js).
+[framecord](https://github.com/matteopolak/framecord) is a modular and extensible framework for creating Discord bots, created with [discord.js](https://github.com/discordjs/discord.js).
 
 ## "Hello, world!"
 
@@ -15,7 +15,7 @@ The setup below will do the following:
 import { join } from 'node:path';
 
 import { IntentsBitField } from 'discord.js';
-import { Client, Command } from 'discord-template';
+import { Client, Command } from '@matteopolak/framecord';
 
 const client = new Client({
   intents: [
@@ -48,7 +48,7 @@ import {
   CommandResponse,
   CommandSource,
   EventHandler
-} from 'discord-template';
+} from '@matteopolak/framecord';
 
 // *Must* be a default export in order to work properly when
 // adding an entire command directory
