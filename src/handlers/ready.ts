@@ -5,8 +5,8 @@ export default class ReadyHandler extends Handler {
 	@EventHandler()
 	public async ready() {
 		// Register commands automatically if it's enabled in the config
-		if (this.client.settings.registerCommandsOnReady !== false) {
-			await this.client.registerCommands();
+		if (this.client.settings.publishCommandsOnReady !== false) {
+			await this.client.publishCommands();
 		}
 
 		// Print out a ready message if it's enabled in the config

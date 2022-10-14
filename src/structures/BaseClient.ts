@@ -12,7 +12,7 @@ import { traverse } from '@util/fs';
 import { Handler } from '@structs/Handler';
 
 export interface BaseOptions {
-	registerCommandsOnReady?: boolean;
+	publishCommandsOnReady?: boolean;
 	verbose?: boolean;
 }
 
@@ -62,12 +62,29 @@ export default class BaseClient extends Client {
 	}
 
 	/** Registers a single handler */
-	public compileHandler(handler: Handler) {
+	public registerHandler(handler: Handler) {
 		this.compileCommandEvents(handler);
 	}
 
+	/** Compiles and registers a single command */
+	public async compileCommand(
+		path: string,
+		name: string,
+		parent: Collection<string, Command> = this.commands
+	) {
+		const CommandClass: typeof Command = await import(path);
+
+		this.registerCommand(
+			new CommandClass({
+				client: this,
+				name,
+			}),
+			parent
+		);
+	}
+
 	/** Registers a single command */
-	public compileCommand(
+	public registerCommand(
 		command: Command,
 		parent: Collection<string, Command> = this.commands
 	) {
@@ -93,12 +110,18 @@ export default class BaseClient extends Client {
 		this.compileCommandEvents(command);
 	}
 
-	/** Registers and compiles a directory of commands */
+	/**
+	 * Compiles and registers a directory of commands and returns the
+	 * number of commands that were registered
+	 */
 	public async compileCommandDirectory(
 		path: string,
+		async = true,
 		parent: Collection<string, Command> = this.commands
-	) {
+	): Promise<number> {
 		const paths = traverse(path);
+		const localCommands: Map<string, Promise<void>> = new Map();
+
 		let count = 0;
 
 		for (;;) {
@@ -106,14 +129,23 @@ export default class BaseClient extends Client {
 
 			if (done) {
 				for (const childPath of id) {
-					const command = parent.get(childPath);
+					const commandPromise = localCommands.get(childPath);
+					if (!commandPromise) continue;
 
-					count += command
-						? await this.compileCommandDirectory(
-								join(path, childPath),
-								command.subcommands
-						  )
-						: 0;
+					await commandPromise;
+					const command = parent.get(childPath)!;
+
+					const promise = this.compileCommandDirectory(
+						join(path, childPath),
+						async,
+						command.subcommands
+					);
+
+					if (async) {
+						promise.then(c => (count += c));
+					} else {
+						count += await promise;
+					}
 				}
 
 				return count;
@@ -121,14 +153,11 @@ export default class BaseClient extends Client {
 
 			++count;
 
-			const CommandClass: typeof Command = await import(join(path, id));
+			const name = id.slice(0, -3);
 
-			this.compileCommand(
-				new CommandClass({
-					client: this,
-					name: id.slice(0, -3),
-				}),
-				parent
+			localCommands.set(
+				name,
+				this.compileCommand(join(path, id), name, parent)
 			);
 		}
 	}
@@ -151,7 +180,7 @@ export default class BaseClient extends Client {
 			const HandlerClass: typeof Handler = (await import(join(path, id)))
 				.default;
 
-			this.compileHandler(
+			this.registerHandler(
 				new HandlerClass({
 					client: this,
 				})
@@ -159,8 +188,8 @@ export default class BaseClient extends Client {
 		}
 	}
 
-	/** Registers all active commands with the Discord API */
-	public async registerCommands() {
+	/** Publishes all active commands to the Discord API */
+	public async publishCommands() {
 		if (this.flags.commandsRegistered) return;
 
 		const payload: ApplicationCommandData[] = [];
