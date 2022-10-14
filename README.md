@@ -1,6 +1,7 @@
 # Framecord 🤖
 
 ![Build Status](https://github.com/matteopolak/framecord/actions/workflows/ci.yml/badge.svg)
+![Docs Status](https://github.com/matteopolak/framecord/actions/workflows/docs.yml/badge.svg)
 
 [framecord](https://github.com/matteopolak/framecord) is a modular and extensible framework for creating Discord bots, created with [discord.js](https://github.com/discordjs/discord.js).
 
