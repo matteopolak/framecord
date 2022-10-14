@@ -164,10 +164,14 @@ export interface EventsExt {
 	): unknown;
 }
 
-export function EventHandler(once = false) {
+export interface EventHandlerOptions {
+	once: boolean;
+}
+
+export function EventHandler(options?: Partial<EventHandlerOptions>) {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	return function (target: any, key: string) {
-		target[key].once = once;
+		target[key].once = options?.once ?? false;
 		target[key].event = true;
 	};
 }

@@ -63,7 +63,7 @@ export default class HelloWorld extends Command {
   //
   // It currently only has the `once` option, which (when true)
   // will stop listening to the event after it is fired once
-  @EventHandler(once=true)
+  @EventHandler({ once: true })
   public async ready() {
     // `client` is a reference to the Client
     console.log(`I just logged in as ${this.client.user.username}!`);
