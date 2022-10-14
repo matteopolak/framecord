@@ -2,7 +2,7 @@ import { EventHandler } from '@structs/Events';
 import { Handler } from '@structs/Handler';
 
 export default class ReadyHandler extends Handler {
-	@EventHandler()
+	@EventHandler({ once: true })
 	public async ready() {
 		// Register commands automatically if it's enabled in the config
 		if (this.client.settings.publishCommandsOnReady !== false) {

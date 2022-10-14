@@ -7,7 +7,7 @@ import {
 	CommandInteraction,
 	PermissionsBitField,
 } from 'discord.js';
-import type {
+import {
 	CommandArgument,
 	CommandArgumentTypes,
 	CommandArgumentValue,
@@ -30,7 +30,10 @@ export interface CommandOptions {
 }
 
 export interface CommandExt {
-	run(source: CommandSource, ...args: CommandArgument[]): CommandResponse;
+	run(
+		source: CommandSource,
+		...args: CommandArgument<CommandArgumentTypes, boolean>[]
+	): CommandResponse;
 	init(): Promise<void> | void;
 }
 
@@ -45,15 +48,68 @@ export type CommandCheckResponse =
 			value: CommandArgumentValue<CommandArgumentTypes, true>[];
 	  };
 
+/**
+ * The base command to extend from.
+ *
+ * @example
+ * ```typescript
+ * class BanUser extends Command {
+ * 	constructor(options: CommandOptions) {
+ * 		super(options);
+ *
+ * 		// The name of the command
+ * 		this.name = 'ban';
+ * 		// A description of the command
+ * 		this.description = 'Bans a user from the server';
+ *
+ * 		this.arguments.push(
+ * 			new CommandArgument({
+ * 				// The type of argument
+ * 				type: CommandArgumentType.User,
+ * 				// The name of the argument
+ * 				name: 'user',
+ * 				// A description of the argument
+ * 				description: 'The user to ban from the server',
+ * 				// The (optional) filter that the argument must pass
+ * 				filter: (source, user) => source.user.id !== user.id,
+ * 				// The error shown to the user if the filter is not passed
+ * 				error: 'You cannot ban yourself',
+ * 			}),
+ * 			new CommandArgument({
+ * 				type: CommandArgumentType.String,
+ * 				name: 'reason',
+ * 				description: 'The reason for the punishment',
+ * 				// Specific property for `CommandArgumentType.String`
+ * 				maxLength: 128,
+ * 				// Whether the argument is required
+ * 				required: false,
+ * 			})
+ * 		);
+ * 	}
+ *
+ * 	// The first argument is the source of the command (i.e. a `CommandInteraction`).
+ * 	// Remaining arguments are passed in the same order as they are provided in Command#arguments.
+ * 	public async run(source: CommandSource, user: User, reason?: string) {
+ * 		try {
+ * 			await source.guild.members.ban(user, { reason });
+ *
+ * 			return `**${escapeMarkdown(user.tag)}** has been banned.`;
+ * 		} catch {
+ * 			throw `${user} could not be banned.`;
+ * 		}
+ * 	}
+ * }
+ * ```
+ */
 export class Command extends Events {
 	/** The name of the slash command (same as file name by default) */
-	public readonly name: string;
+	public name: string;
 
 	/**
 	 * An array of command arguments, values are applied to the `run` method
 	 * in the same order that they are provided here
 	 */
-	public readonly arguments: CommandArgument[];
+	public readonly arguments: CommandArgument<CommandArgumentTypes, boolean>[];
 
 	/**
 	 * A `Collection` of subcommands, automatically populated when
@@ -62,10 +118,10 @@ export class Command extends Events {
 	public readonly subcommands: Collection<string, Command> = new Collection();
 
 	/** The description of the slash command */
-	public readonly description: string = 'No description.';
+	public description = 'No description.';
 
 	/** Whether the command should be enabled */
-	public readonly enabled = true;
+	public enabled = true;
 
 	/** The permissions required to use the slash command */
 	public readonly permissions: PermissionsBitField = new PermissionsBitField();
@@ -117,7 +173,7 @@ export class Command extends Events {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		source: CommandSource,
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		...args: CommandArgumentValue[]
+		...args: unknown[]
 	): CommandResponse {
 		// Command body goes here
 	}

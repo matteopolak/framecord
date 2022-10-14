@@ -1,13 +1,3 @@
-import BaseClient from '@structs/BaseClient';
-import { Events } from '@structs/Events';
-interface HandlerOptions {
-	client: BaseClient;
-}
-
-/**
- * The base handler to extend from.
- *
- * @example
  * export default class ReadyHandler extends Handler {
  * 	// @EventHandler denotes an event listener, with the event being
  * 	// the name of the method
@@ -24,7 +14,7 @@ interface HandlerOptions {
  * 			],
  * 		});
  * 	}
- *
+ * 
  * 	@EventHandler()
  * 	public async guildMemberAdd(member: GuildMember) {
  * 		if (member.guild.systemChannel) {
@@ -34,7 +24,7 @@ interface HandlerOptions {
  * 			);
  * 		}
  * 	}
- *
+ * 
  * 	@EventHandler()
  * 	public async guildMemberRemove(member: GuildMember) {
  * 		if (member.guild.systemChannel) {
@@ -49,14 +39,3 @@ interface HandlerOptions {
  * 		}
  * 	}
  * }
- */
-export class Handler extends Events {
-	/** A reference to the main client */
-	protected client: BaseClient;
-
-	constructor(options: HandlerOptions) {
-		super();
-
-		this.client = options.client;
-	}
-}

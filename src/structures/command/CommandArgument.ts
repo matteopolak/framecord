@@ -126,7 +126,7 @@ interface CommandArgumentOptionsBase<
 	name: string;
 	description: string;
 	type: T;
-	error: string;
+	error?: string;
 	required?: R;
 	filter?: CommandArgumentFilter<T>;
 }
@@ -136,10 +136,7 @@ type CommandArgumentOptions<
 	R extends boolean
 > = CommandArgumentOptionsBase<T, R> & CommandArgumentOptionsExtra<T>;
 
-export class CommandArgument<
-	T extends CommandArgumentType = CommandArgumentTypes,
-	R extends boolean = boolean
-> {
+export class CommandArgument<T extends CommandArgumentType, R extends boolean> {
 	/**
 	 * The type of argument. For example, `CommandArgumentType.User` will require
 	 * the executor to provide a `User`
