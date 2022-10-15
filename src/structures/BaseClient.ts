@@ -247,4 +247,13 @@ export default class BaseClient extends Client {
 		this.registerHandler(new CommandHandler({ client: this }));
 		this.registerHandler(new ReadyHandler({ client: this }));
 	}
+
+	public override emit<K extends keyof ClientEvents | string>(
+		event: K,
+		...args: K extends keyof ClientEvents ? ClientEvents[K] : unknown[]
+	) {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		return super.emit(event, ...args);
+	}
 }
