@@ -7,7 +7,11 @@ export {
 	BaseOptions,
 } from '@structs/BaseClient';
 export { Handler, HandlerOptions } from '@structs/Handler';
-export { Command, CommandOptions } from '@structs/command/Command';
+export {
+	Command,
+	CommandOptions,
+	CommandSource,
+} from '@structs/command/Command';
 export {
 	Argument,
 	ArgumentType,
