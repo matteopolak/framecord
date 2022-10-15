@@ -46,11 +46,12 @@ export type ArgumentTypes =
 export type ArgumentResponse<
 	T extends ArgumentType,
 	R extends boolean,
-	V extends boolean = boolean
+	V extends boolean = boolean,
+	M = T
 > = V extends true
 	? {
 			valid: true;
-			value: ArgumentValue<T, R>;
+			value: MappedArgumentValue<T, R, M>;
 	  }
 	: V extends false
 	? {
@@ -98,6 +99,12 @@ export type ArgumentOptionsExtra<T> = Omit<
 	'type' | 'description' | 'name' | 'required'
 >;
 
+export type MappedArgumentValue<
+	T extends ArgumentType = ArgumentTypes,
+	R extends boolean = true,
+	M = T
+> = M extends ArgumentType ? ArgumentValue<M, R> : M;
+
 export type ArgumentValue<
 	T extends ArgumentType = ArgumentTypes,
 	R extends boolean = true
@@ -116,29 +123,37 @@ const ARGUMENT_TYPE_TO_FUNCTION_NAME = {
 	[ArgumentType.Member]: 'getMember',
 } as const;
 
-type ArgumentFilter<T extends ArgumentType> = (
+export type ArgumentFilter<T> = (
+	source: CommandInteraction,
+	argument: T
+) => Promise<boolean> | boolean;
+
+export type ArgumentMapper<T extends ArgumentType, M> = (
 	source: CommandInteraction,
 	argument: ArgumentValue<T, true>
-) => Promise<boolean> | boolean;
+) => M;
 
 export interface ArgumentOptionsBase<
 	T extends ArgumentType,
-	R extends boolean
+	R extends boolean,
+	M = T
 > {
 	name: string;
 	description: string;
 	type: T;
 	error?: string;
 	required?: R;
-	filter?: ArgumentFilter<T>;
+	filter?: ArgumentFilter<MappedArgumentValue<T, R, M>>;
+	mapper?: ArgumentMapper<T, M>;
 }
 
 export type ArgumentOptions<
 	T extends ArgumentType,
-	R extends boolean
-> = ArgumentOptionsBase<T, R> & ArgumentOptionsExtra<T>;
+	R extends boolean,
+	M = T
+> = ArgumentOptionsBase<T, R, M> & ArgumentOptionsExtra<T>;
 
-export class Argument<T extends ArgumentType, R extends boolean> {
+export class Argument<T extends ArgumentType, R extends boolean, M = T> {
 	/**
 	 * The type of argument. For example, `ArgumentType.User` will require
 	 * the executor to provide a `User`
@@ -155,7 +170,10 @@ export class Argument<T extends ArgumentType, R extends boolean> {
 	public required: R | true;
 
 	/** Additional filter that must be passed */
-	private filter?: ArgumentFilter<ArgumentTypes>;
+	private filter?: ArgumentFilter<MappedArgumentValue<T, R, M>>;
+
+	/** Maps the input to an output */
+	private mapper?: ArgumentMapper<T, M>;
 
 	/** The error to display if the filter is not passed */
 	private error?: string;
@@ -163,11 +181,14 @@ export class Argument<T extends ArgumentType, R extends boolean> {
 	/** Additional options for the argument */
 	private options: Partial<ArgumentOptionsExtra<T>> = {};
 
-	constructor(options: ArgumentOptions<T, R>) {
+	constructor(options: ArgumentOptions<T, R, M>) {
 		this.type = options.type;
 		this.name = options.name;
 		this.description = options.description;
-		this.filter = options.filter as ArgumentFilter<ArgumentTypes> | undefined;
+		this.filter = options.filter as
+			| ArgumentFilter<MappedArgumentValue<T, R, M>>
+			| undefined;
+		this.mapper = options.mapper;
 		this.required = options.required ?? true;
 		this.error = options.error;
 
@@ -212,13 +233,22 @@ export class Argument<T extends ArgumentType, R extends boolean> {
 	}
 
 	/** Executes the argument and returns a validation response */
-	async run(source: CommandSource): Promise<ArgumentResponse<T, R>> {
-		const argument = (
+	async run(
+		source: CommandSource
+	): Promise<ArgumentResponse<T, R, boolean, M>> {
+		let argument = (
 			source.options as CommandInteractionOptionResolver<'cached'>
 		)[ARGUMENT_TYPE_TO_FUNCTION_NAME[this.type]](
 			this.name,
 			this.required
-		) as ArgumentValue<T, R>;
+		) as MappedArgumentValue<T, R, M>;
+
+		if (this.mapper && argument !== null) {
+			argument = (await this.mapper(
+				source,
+				argument as ArgumentValue<T, true>
+			)) as MappedArgumentValue<T, R, M>;
+		}
 
 		if (this.filter) {
 			try {
