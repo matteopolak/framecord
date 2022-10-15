@@ -91,7 +91,7 @@ export default class BaseClient extends Client {
 		name: string,
 		parent: Collection<string, Command> = this.commands
 	) {
-		const CommandClass: typeof Command = await import(path);
+		const CommandClass: typeof Command = (await import(path)).default;
 
 		this.registerCommand(
 			new CommandClass({
