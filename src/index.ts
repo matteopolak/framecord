@@ -10,6 +10,7 @@ export { Handler, HandlerOptions } from '@structs/Handler';
 export { Command, CommandOptions } from '@structs/command/Command';
 export {
 	Argument,
+	ArgumentType,
 	ArgumentOptions,
 	ArgumentOptionsBase,
 	ArgumentOptionsExtra,
