@@ -20,6 +20,8 @@ export interface Flags {
 	commandsRegistered: boolean;
 }
 
+export type BaseClientOptions = ClientOptions & BaseOptions;
+
 /**
  * The main client.
  *
@@ -50,7 +52,7 @@ export default class BaseClient extends Client {
 	/** Internal flags to ensure certain methods aren't run multiple times */
 	private flags: Partial<Flags> = {};
 
-	constructor(options: ClientOptions & BaseOptions) {
+	constructor(options: BaseClientOptions) {
 		super(options);
 
 		this.settings = options;

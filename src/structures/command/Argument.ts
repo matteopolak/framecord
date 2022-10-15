@@ -18,7 +18,7 @@ import {
 } from 'discord.js';
 import { CommandSource } from '@structs/command/Command';
 
-export enum CommandArgumentType {
+export enum ArgumentType {
 	String = 3,
 	Integer = 4,
 	Boolean = 5,
@@ -31,114 +31,106 @@ export enum CommandArgumentType {
 	Member = -1,
 }
 
-export type CommandArgumentTypes =
-	| CommandArgumentType.String
-	| CommandArgumentType.Integer
-	| CommandArgumentType.Boolean
-	| CommandArgumentType.User
-	| CommandArgumentType.Channel
-	| CommandArgumentType.Role
-	| CommandArgumentType.Mentionable
-	| CommandArgumentType.Number
-	| CommandArgumentType.Attachment
-	| CommandArgumentType.Member;
+export type ArgumentTypes =
+	| ArgumentType.String
+	| ArgumentType.Integer
+	| ArgumentType.Boolean
+	| ArgumentType.User
+	| ArgumentType.Channel
+	| ArgumentType.Role
+	| ArgumentType.Mentionable
+	| ArgumentType.Number
+	| ArgumentType.Attachment
+	| ArgumentType.Member;
 
-type CommandArgumentResponse<
-	T extends CommandArgumentType,
-	R extends boolean
-> =
+type ArgumentResponse<T extends ArgumentType, R extends boolean> =
 	| {
 			valid: false;
 			value: string;
 	  }
 	| {
 			valid: true;
-			value: CommandArgumentValue<T, R>;
+			value: ArgumentValue<T, R>;
 	  };
 
-interface CommandArgumentValueMap {
-	[CommandArgumentType.String]: string;
-	[CommandArgumentType.Integer]: number;
-	[CommandArgumentType.Boolean]: boolean;
-	[CommandArgumentType.User]: User;
-	[CommandArgumentType.Channel]: GuildChannel;
-	[CommandArgumentType.Role]: Role;
-	[CommandArgumentType.Mentionable]: Role | User | GuildChannel;
-	[CommandArgumentType.Number]: number;
-	[CommandArgumentType.Attachment]: Attachment;
-	[CommandArgumentType.Member]: GuildMember;
+interface ArgumentValueMap {
+	[ArgumentType.String]: string;
+	[ArgumentType.Integer]: number;
+	[ArgumentType.Boolean]: boolean;
+	[ArgumentType.User]: User;
+	[ArgumentType.Channel]: GuildChannel;
+	[ArgumentType.Role]: Role;
+	[ArgumentType.Mentionable]: Role | User | GuildChannel;
+	[ArgumentType.Number]: number;
+	[ArgumentType.Attachment]: Attachment;
+	[ArgumentType.Member]: GuildMember;
 }
 
-type CommandArgumentOptionsExtra<T> = Omit<
-	T extends CommandArgumentType.String
+type ArgumentOptionsExtra<T> = Omit<
+	T extends ArgumentType.String
 		? ApplicationCommandStringOption
-		: T extends CommandArgumentType.Integer
+		: T extends ArgumentType.Integer
 		? ApplicationCommandNumericOption
-		: T extends CommandArgumentType.Boolean
+		: T extends ArgumentType.Boolean
 		? ApplicationCommandBooleanOption
-		: T extends CommandArgumentType.User
+		: T extends ArgumentType.User
 		? ApplicationCommandUserOption
-		: T extends CommandArgumentType.Channel
+		: T extends ArgumentType.Channel
 		? ApplicationCommandChannelOption
-		: T extends CommandArgumentType.Role
+		: T extends ArgumentType.Role
 		? ApplicationCommandRoleOption
-		: T extends CommandArgumentType.Mentionable
+		: T extends ArgumentType.Mentionable
 		? ApplicationCommandMentionableOption
-		: T extends CommandArgumentType.Number
+		: T extends ArgumentType.Number
 		? ApplicationCommandNumericOption
-		: T extends CommandArgumentType.Attachment
+		: T extends ArgumentType.Attachment
 		? ApplicationCommandAttachmentOption
-		: T extends CommandArgumentType.Member
+		: T extends ArgumentType.Member
 		? ApplicationCommandUserOption
 		: unknown,
 	'type' | 'description' | 'name' | 'required'
 >;
 
-export type CommandArgumentValue<
-	T extends CommandArgumentType = CommandArgumentTypes,
+export type ArgumentValue<
+	T extends ArgumentType = ArgumentTypes,
 	R extends boolean = true
-> = R extends true
-	? CommandArgumentValueMap[T]
-	: CommandArgumentValueMap[T] | null;
+> = R extends true ? ArgumentValueMap[T] : ArgumentValueMap[T] | null;
 
 const ARGUMENT_TYPE_TO_FUNCTION_NAME = {
-	[CommandArgumentType.String]: 'getString',
-	[CommandArgumentType.Integer]: 'getInteger',
-	[CommandArgumentType.Boolean]: 'getBoolean',
-	[CommandArgumentType.User]: 'getUser',
-	[CommandArgumentType.Channel]: 'getChannel',
-	[CommandArgumentType.Role]: 'getRole',
-	[CommandArgumentType.Mentionable]: 'getMentionable',
-	[CommandArgumentType.Number]: 'getNumber',
-	[CommandArgumentType.Attachment]: 'getAttachment',
-	[CommandArgumentType.Member]: 'getMember',
+	[ArgumentType.String]: 'getString',
+	[ArgumentType.Integer]: 'getInteger',
+	[ArgumentType.Boolean]: 'getBoolean',
+	[ArgumentType.User]: 'getUser',
+	[ArgumentType.Channel]: 'getChannel',
+	[ArgumentType.Role]: 'getRole',
+	[ArgumentType.Mentionable]: 'getMentionable',
+	[ArgumentType.Number]: 'getNumber',
+	[ArgumentType.Attachment]: 'getAttachment',
+	[ArgumentType.Member]: 'getMember',
 } as const;
 
-type CommandArgumentFilter<T extends CommandArgumentType> = (
+type ArgumentFilter<T extends ArgumentType> = (
 	source: CommandInteraction,
-	argument: CommandArgumentValue<T, true>
+	argument: ArgumentValue<T, true>
 ) => Promise<boolean> | boolean;
 
-interface CommandArgumentOptionsBase<
-	T extends CommandArgumentType,
-	R extends boolean
-> {
+interface ArgumentOptionsBase<T extends ArgumentType, R extends boolean> {
 	name: string;
 	description: string;
 	type: T;
 	error?: string;
 	required?: R;
-	filter?: CommandArgumentFilter<T>;
+	filter?: ArgumentFilter<T>;
 }
 
-type CommandArgumentOptions<
-	T extends CommandArgumentType,
+export type ArgumentOptions<
+	T extends ArgumentType,
 	R extends boolean
-> = CommandArgumentOptionsBase<T, R> & CommandArgumentOptionsExtra<T>;
+> = ArgumentOptionsBase<T, R> & ArgumentOptionsExtra<T>;
 
-export class CommandArgument<T extends CommandArgumentType, R extends boolean> {
+export class Argument<T extends ArgumentType, R extends boolean> {
 	/**
-	 * The type of argument. For example, `CommandArgumentType.User` will require
+	 * The type of argument. For example, `ArgumentType.User` will require
 	 * the executor to provide a `User`
 	 */
 	public type: T;
@@ -153,21 +145,19 @@ export class CommandArgument<T extends CommandArgumentType, R extends boolean> {
 	public required: R | true;
 
 	/** Additional filter that must be passed */
-	private filter?: CommandArgumentFilter<CommandArgumentTypes>;
+	private filter?: ArgumentFilter<ArgumentTypes>;
 
 	/** The error to display if the filter is not passed */
 	private error?: string;
 
 	/** Additional options for the argument */
-	private options: Partial<CommandArgumentOptionsExtra<T>> = {};
+	private options: Partial<ArgumentOptionsExtra<T>> = {};
 
-	constructor(options: CommandArgumentOptions<T, R>) {
+	constructor(options: ArgumentOptions<T, R>) {
 		this.type = options.type;
 		this.name = options.name;
 		this.description = options.description;
-		this.filter = options.filter as
-			| CommandArgumentFilter<CommandArgumentTypes>
-			| undefined;
+		this.filter = options.filter as ArgumentFilter<ArgumentTypes> | undefined;
 		this.required = options.required ?? true;
 		this.error = options.error;
 
@@ -212,13 +202,13 @@ export class CommandArgument<T extends CommandArgumentType, R extends boolean> {
 	}
 
 	/** Executes the argument and returns a validation response */
-	async run(source: CommandSource): Promise<CommandArgumentResponse<T, R>> {
+	async run(source: CommandSource): Promise<ArgumentResponse<T, R>> {
 		const argument = (
 			source.options as CommandInteractionOptionResolver<'cached'>
 		)[ARGUMENT_TYPE_TO_FUNCTION_NAME[this.type]](
 			this.name,
 			this.required
-		) as CommandArgumentValue<T, R>;
+		) as ArgumentValue<T, R>;
 
 		if (this.filter) {
 			try {
@@ -247,8 +237,8 @@ export class CommandArgument<T extends CommandArgumentType, R extends boolean> {
 	public getSlashData(): ApplicationCommandOptionData {
 		return {
 			...this.options,
-			type: (this.type === CommandArgumentType.Member
-				? CommandArgumentType.User
+			type: (this.type === ArgumentType.Member
+				? ArgumentType.User
 				: // eslint-disable-next-line @typescript-eslint/no-explicit-any
 				  this.type) as any,
 			name: this.name,

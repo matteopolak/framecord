@@ -1,6 +1,7 @@
 import BaseClient from '@structs/BaseClient';
 import { Events } from '@structs/Events';
-interface HandlerOptions {
+
+export interface HandlerOptions {
 	client: BaseClient;
 }
 

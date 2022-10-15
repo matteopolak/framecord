@@ -8,10 +8,10 @@ import {
 	PermissionsBitField,
 } from 'discord.js';
 import {
-	CommandArgument,
-	CommandArgumentTypes,
-	CommandArgumentValue,
-} from '@structs/command/CommandArgument';
+	Argument,
+	ArgumentTypes,
+	ArgumentValue,
+} from '@structs/command/Argument';
 import Client from '@structs/BaseClient';
 import { Events } from '@structs/Events';
 import { SendableOptions } from '@util/message';
@@ -32,7 +32,7 @@ export interface CommandOptions {
 export interface CommandExt {
 	run(
 		source: CommandSource,
-		...args: CommandArgument<CommandArgumentTypes, boolean>[]
+		...args: Argument<ArgumentTypes, boolean>[]
 	): CommandResponse;
 	init(): Promise<void> | void;
 }
@@ -45,7 +45,7 @@ export type CommandCheckResponse =
 	  }
 	| {
 			valid: true;
-			value: CommandArgumentValue<CommandArgumentTypes, true>[];
+			value: ArgumentValue<ArgumentTypes, true>[];
 	  };
 
 /**
@@ -63,9 +63,9 @@ export type CommandCheckResponse =
  *     this.description = 'Bans a user from the server';
  *
  *     this.arguments.push(
- *       new CommandArgument({
+ *       new Argument({
  *         // The type of argument
- *         type: CommandArgumentType.User,
+ *         type: ArgumentType.User,
  *         // The name of the argument
  *         name: 'user',
  *         // A description of the argument
@@ -75,11 +75,11 @@ export type CommandCheckResponse =
  *         // The error shown to the user if the filter is not passed
  *         error: 'You cannot ban yourself',
  *       }),
- *       new CommandArgument({
- *         type: CommandArgumentType.String,
+ *       new Argument({
+ *         type: ArgumentType.String,
  *         name: 'reason',
  *         description: 'The reason for the punishment',
- *         // Specific property for `CommandArgumentType.String`
+ *         // Specific property for `ArgumentType.String`
  *         maxLength: 128,
  *         // Whether the argument is required
  *         required: false,
@@ -109,7 +109,7 @@ export class Command extends Events {
 	 * An array of command arguments, values are applied to the `run` method
 	 * in the same order that they are provided here
 	 */
-	public readonly arguments: CommandArgument<CommandArgumentTypes, boolean>[];
+	public readonly arguments: Argument<ArgumentTypes, boolean>[];
 
 	/**
 	 * A `Collection` of subcommands, automatically populated when
@@ -146,7 +146,7 @@ export class Command extends Events {
 			};
 		}
 
-		const args: CommandArgumentValue[] = [];
+		const args: ArgumentValue[] = [];
 
 		for (const argument of this.arguments) {
 			const response = await argument.run(source);
