@@ -6,7 +6,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
-		"docs": "typedoc src/index.ts --out framecord --theme node_modules/typedoc-neo-theme/bin/default"
+		"docs": "typedoc src/index.ts --out framecord --theme node_modules/typedoc-neo-theme/bin/default --plugin typedoc-neo-theme"
 	},
 	"repository": {
 		"type": "git",
