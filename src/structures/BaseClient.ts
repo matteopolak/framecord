@@ -10,6 +10,8 @@ import { Command } from '@structs/command/Command';
 import { join } from 'node:path';
 import { traverse } from '@util/fs';
 import { Handler } from '@structs/Handler';
+import CommandHandler from '@handlers/command';
+import ReadyHandler from '@handlers/ready';
 
 export interface BaseOptions {
 	publishCommandsOnReady?: boolean;
@@ -242,6 +244,7 @@ export default class BaseClient extends Client {
 		if (this.initialized) return;
 		this.initialized = true;
 
-		await this.compileHandlerDirectory(join(__dirname, '..', 'handlers'));
+		this.registerHandler(new CommandHandler({ client: this }));
+		this.registerHandler(new ReadyHandler({ client: this }));
 	}
 }
