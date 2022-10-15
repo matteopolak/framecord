@@ -86,10 +86,35 @@ export default class CommandHandler extends Handler {
 			// print those.
 			if (typeof e === 'string') {
 				return embed({ description: e, title: 'Error' });
-			}
+			} else {
+				try {
+					// Execute the fallback command
+					const response = await command.catch(
+						e as Error,
+						interaction,
+						...args
+					);
 
-			// Print out the real error to stderr
-			console.error(e);
+					// If the response is null, void, undefined, or an empty string
+					// then exit early with no response
+					if (!response) return;
+
+					// Otherwise, send the response message
+					return message(
+						interaction,
+						typeof response === 'string'
+							? embed({ description: response })
+							: response
+					);
+				} catch (e) {
+					if (typeof e === 'string') {
+						return embed({ description: e, title: 'Error' });
+					}
+
+					// Print out the real error to stderr
+					console.error(e);
+				}
+			}
 		}
 	}
 }

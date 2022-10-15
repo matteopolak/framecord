@@ -174,6 +174,18 @@ export class Command extends Events {
 		// Command body goes here
 	}
 
+	/** Executed if the `run` method throws an error */
+	async catch(
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		error: Error,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		source: CommandSource,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		...args: unknown[]
+	): CommandResponse {
+		// Command catch body goes here
+	}
+
 	/** Initialized when the command is compiled */
 	async init() {
 		// Initialization code goes here
