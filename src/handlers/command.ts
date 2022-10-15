@@ -1,6 +1,8 @@
+import { ArgumentResponse, ArgumentTypes } from '@structs/command/Argument';
 import { EventHandler } from '@structs/Events';
 import { Handler } from '@structs/Handler';
 import { embed, message } from '@util/message';
+import { config } from 'config';
 import {
 	Interaction,
 	InteractionType,
@@ -49,7 +51,10 @@ export default class CommandHandler extends Handler {
 				interaction,
 				embed({
 					title:
-						response.source && `Error with argument \`${response.source}\``,
+						response.source &&
+						config.messages.parameterFailure(
+							response as ArgumentResponse<ArgumentTypes, boolean, false>
+						),
 					description: response.value,
 				})
 			);

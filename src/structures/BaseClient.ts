@@ -208,7 +208,7 @@ export default class BaseClient extends Client {
 	}
 
 	/** Publishes all active commands to the Discord API */
-	public async publishCommands() {
+	public async publishCommands(guildId?: string) {
 		if (this.flags.commandsRegistered) return;
 
 		const payload: ApplicationCommandData[] = [];
@@ -230,7 +230,11 @@ export default class BaseClient extends Client {
 			});
 		}
 
-		await this.application?.commands.set(payload, '968627637444558918');
+		if (guildId) {
+			await this.application?.commands.set(payload, guildId);
+		} else {
+			await this.application?.commands.set(payload);
+		}
 	}
 
 	/** Initializes the client. This *must* the run before the client logs in */

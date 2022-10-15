@@ -152,11 +152,7 @@ export class Command extends Events {
 			const response = await argument.run(source);
 
 			if (!response.valid) {
-				return {
-					valid: false,
-					value: response.value,
-					source: argument.name,
-				};
+				return response;
 			}
 
 			if (response.value !== null) args.push(response.value);

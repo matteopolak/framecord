@@ -11,11 +11,17 @@ export {
 	Command,
 	CommandOptions,
 	CommandSource,
+	CommandResponse,
+	CommandResponseValue,
+	CommandCheckResponse,
 } from '@structs/command/Command';
 export {
 	Argument,
-	ArgumentType,
 	ArgumentOptions,
 	ArgumentOptionsBase,
 	ArgumentOptionsExtra,
+	ArgumentResponse,
+	ArgumentType,
+	ArgumentTypes,
+	ArgumentValue,
 } from '@structs/command/Argument';

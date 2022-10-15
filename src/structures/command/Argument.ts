@@ -43,15 +43,22 @@ export type ArgumentTypes =
 	| ArgumentType.Attachment
 	| ArgumentType.Member;
 
-type ArgumentResponse<T extends ArgumentType, R extends boolean> =
-	| {
-			valid: false;
-			value: string;
-	  }
-	| {
+export type ArgumentResponse<
+	T extends ArgumentType,
+	R extends boolean,
+	V extends boolean = boolean
+> = V extends true
+	? {
 			valid: true;
 			value: ArgumentValue<T, R>;
-	  };
+	  }
+	: V extends false
+	? {
+			valid: false;
+			value: string;
+			source: string;
+	  }
+	: never;
 
 interface ArgumentValueMap {
 	[ArgumentType.String]: string;
@@ -226,6 +233,7 @@ export class Argument<T extends ArgumentType, R extends boolean> {
 				return {
 					valid: false,
 					value: this.error!,
+					source: this.name,
 				};
 			}
 		}
