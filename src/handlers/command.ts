@@ -85,7 +85,7 @@ export default class CommandHandler extends Handler {
 			// Real errors are (almost) always some type of Error object so it won't
 			// print those.
 			if (typeof e === 'string') {
-				return embed({ description: e, title: 'Error' });
+				return message(interaction, embed({ description: e, title: 'Error' }));
 			} else {
 				try {
 					// Execute the fallback command
@@ -108,7 +108,10 @@ export default class CommandHandler extends Handler {
 					);
 				} catch (e) {
 					if (typeof e === 'string') {
-						return embed({ description: e, title: 'Error' });
+						return message(
+							interaction,
+							embed({ description: e, title: 'Error' })
+						);
 					}
 
 					// Print out the real error to stderr
