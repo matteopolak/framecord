@@ -66,7 +66,7 @@ interface ArgumentValueMap {
 	[ArgumentType.Member]: GuildMember;
 }
 
-type ArgumentOptionsExtra<T> = Omit<
+export type ArgumentOptionsExtra<T> = Omit<
 	T extends ArgumentType.String
 		? ApplicationCommandStringOption
 		: T extends ArgumentType.Integer
@@ -114,7 +114,10 @@ type ArgumentFilter<T extends ArgumentType> = (
 	argument: ArgumentValue<T, true>
 ) => Promise<boolean> | boolean;
 
-interface ArgumentOptionsBase<T extends ArgumentType, R extends boolean> {
+export interface ArgumentOptionsBase<
+	T extends ArgumentType,
+	R extends boolean
+> {
 	name: string;
 	description: string;
 	type: T;
