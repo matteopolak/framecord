@@ -1,4 +1,7 @@
 import { ArgumentResponse, ArgumentTypes } from '@structs/command/Argument';
+import { CommandSource } from '@structs/command/Command';
+import { formatListing } from '@util/message';
+import { PermissionsBitField } from 'discord.js';
 
 export const config = {
 	/** Formatting options for messages sent from the client */
@@ -10,5 +13,10 @@ export const config = {
 		parameterFailure: (
 			response: ArgumentResponse<ArgumentTypes, boolean, false>
 		) => `Error with parameter \`${response.source}\``,
+		insufficientPermissions: (_: CommandSource, need: PermissionsBitField) =>
+			`You need ${formatListing(
+				need.toArray(),
+				p => `\`${p}\``
+			)} in order to run this command.`,
 	},
 };

@@ -15,6 +15,7 @@ import {
 import Client from '@structs/BaseClient';
 import { Events } from '@structs/Events';
 import { SendableOptions } from '@util/message';
+import { config } from 'config';
 
 export type CommandResponseValue =
 	| string
@@ -146,7 +147,13 @@ export class Command extends Events {
 		if (!source.member.permissions.has(this.permissions)) {
 			return {
 				valid: false,
-				value: 'Insufficient permissions.',
+				value: config.messages.insufficientPermissions(
+					source,
+					new PermissionsBitField(
+						(source.member.permissions.bitfield & this.permissions.bitfield) ^
+							this.permissions.bitfield
+					)
+				),
 			};
 		}
 

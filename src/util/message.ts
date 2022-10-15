@@ -58,3 +58,14 @@ export async function message<T extends Sendable>(
 
 	/* eslint-enable @typescript-eslint/ban-ts-comment */
 }
+
+export function formatListing(
+	list: string[],
+	formatter: (entry: string) => string = _ => _
+): string {
+	if (list.length <= 1) return list.join(', ');
+
+	const last = list.pop()!;
+
+	return `${list.map(formatter).join(', ')}, and ${formatter(last)}`;
+}
