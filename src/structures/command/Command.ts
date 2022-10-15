@@ -10,7 +10,7 @@ import {
 import {
 	Argument,
 	ArgumentTypes,
-	ArgumentValue,
+	MappedArgumentValue,
 } from '@structs/command/Argument';
 import Client from '@structs/BaseClient';
 import { Events } from '@structs/Events';
@@ -45,7 +45,7 @@ export type CommandCheckResponse =
 	  }
 	| {
 			valid: true;
-			value: ArgumentValue<ArgumentTypes, true>[];
+			value: MappedArgumentValue<ArgumentTypes, true, unknown>[];
 	  };
 
 /**
@@ -109,7 +109,11 @@ export class Command extends Events {
 	 * An array of command arguments, values are applied to the `run` method
 	 * in the same order that they are provided here
 	 */
-	public readonly arguments: Argument<ArgumentTypes, boolean>[];
+	public readonly arguments: Argument<
+		ArgumentTypes,
+		boolean,
+		NonNullable<unknown>
+	>[];
 
 	/**
 	 * A `Collection` of subcommands, automatically populated when
@@ -146,7 +150,7 @@ export class Command extends Events {
 			};
 		}
 
-		const args: ArgumentValue[] = [];
+		const args: MappedArgumentValue<ArgumentTypes, boolean, unknown>[] = [];
 
 		for (const argument of this.arguments) {
 			const response = await argument.run(source);

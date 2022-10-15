@@ -103,7 +103,7 @@ export type MappedArgumentValue<
 	T extends ArgumentType = ArgumentTypes,
 	R extends boolean = true,
 	M = T
-> = M extends ArgumentType ? ArgumentValue<M, R> : M;
+> = M extends ArgumentType ? ArgumentValue<Awaited<M>, R> : Awaited<M>;
 
 export type ArgumentValue<
 	T extends ArgumentType = ArgumentTypes,
