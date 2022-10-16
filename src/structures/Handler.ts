@@ -62,4 +62,9 @@ export class Handler extends Events {
 
 		this.client = options.client;
 	}
+
+	/** Executed when the handler is registered */
+	public async init() {
+		// Executed when the handler is registered
+	}
 }

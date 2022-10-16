@@ -93,6 +93,7 @@ export default class Client extends DiscordClient {
 	/** Registers a single handler */
 	public registerHandler(handler: Handler) {
 		this.compileCommandEvents(handler);
+		handler.init();
 	}
 
 	/** Compiles and registers a single command */
