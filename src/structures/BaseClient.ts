@@ -1,7 +1,7 @@
 import {
 	ApplicationCommandData,
 	ApplicationCommandType,
-	Client,
+	Client as DiscordClient,
 	ClientEvents,
 	ClientOptions,
 	Collection,
@@ -24,6 +24,14 @@ export interface Flags {
 
 export type BaseClientOptions = ClientOptions & BaseOptions;
 
+export class BaseClientContainer {
+	protected client: Client;
+
+	constructor(client: Client) {
+		this.client = client;
+	}
+}
+
 /**
  * The main client.
  *
@@ -41,7 +49,7 @@ export type BaseClientOptions = ClientOptions & BaseOptions;
  * client.login(process.env.TOKEN);
  * ```
  */
-export default class BaseClient extends Client {
+export default class Client extends DiscordClient {
 	/** A `Collection` of all commands */
 	public commands: Collection<string, Command> = new Collection();
 
