@@ -194,7 +194,10 @@ export class Argument<
 	/** Additional options for the argument */
 	private options: Partial<ArgumentOptionsExtra<T>> = {};
 
-	/** Ignore this Argument if the argument at the provided index has been supplied */
+	/**
+	 * Ignore this Argument if the argument at the provided index has been supplied.
+	 * If this value is negative, it will be the index relative to its own index.
+	 */
 	private ignoreIfDefined?: number;
 
 	constructor(options: ArgumentOptions<T, R, M>) {
@@ -253,11 +256,16 @@ export class Argument<
 	/** Executes the argument and returns a validation response */
 	async run(
 		source: CommandSource,
-		args: MappedArgumentValue<ArgumentTypes, false>[]
+		args: MappedArgumentValue<ArgumentTypes, false>[],
+		index: number
 	): Promise<ArgumentResponse<T, R, boolean, M | undefined>> {
 		if (
 			this.ignoreIfDefined !== undefined &&
-			args[this.ignoreIfDefined] === undefined
+			args[
+				this.ignoreIfDefined < 0
+					? index + this.ignoreIfDefined
+					: this.ignoreIfDefined
+			] === undefined
 		) {
 			return {
 				valid: true,

@@ -156,8 +156,8 @@ export class Command extends Events {
 
 		const args: MappedArgumentValue<ArgumentTypes, false>[] = [];
 
-		for (const argument of this.arguments) {
-			const response = await argument.run(source, args);
+		for (const [index, argument] of this.arguments.entries()) {
+			const response = await argument.run(source, args, index);
 
 			if (!response.valid) {
 				return response;
