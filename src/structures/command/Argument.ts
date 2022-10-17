@@ -101,8 +101,8 @@ export type ArgumentOptionsExtra<T> = Omit<
 export type MappedArgumentValue<
 	T extends ArgumentType = ArgumentTypes,
 	R extends boolean = true,
-	M = T
-> = M extends ArgumentType ? ArgumentValue<Awaited<M>, R> : Awaited<M>;
+	M = ArgumentValue<T, R>
+> = M extends ArgumentValue ? M : Awaited<M>;
 
 export type ArgumentValue<
 	T extends ArgumentType = ArgumentTypes,
@@ -138,7 +138,7 @@ export type ArgumentDefault<T> =
 
 export interface ArgumentOptionsBase<
 	T extends ArgumentType,
-	R extends boolean,
+	R extends boolean = true,
 	M = T
 > {
 	name: string;
@@ -148,9 +148,9 @@ export interface ArgumentOptionsBase<
 	required?: R;
 	filter?: ArgumentFilter<MappedArgumentValue<T, R, M>>;
 	mapper?: ArgumentMapper<T, M>;
-	default: R extends true
+	default?: R extends true
 		? undefined
-		: undefined | ArgumentDefault<MappedArgumentValue<T, R, M>>;
+		: ArgumentDefault<MappedArgumentValue<T, R, M>>;
 }
 
 export type ArgumentOptions<
