@@ -154,16 +154,16 @@ export class Command extends Events {
 			};
 		}
 
-		const args: MappedArgumentValue<ArgumentTypes, boolean, unknown>[] = [];
+		const args: MappedArgumentValue<ArgumentTypes, false>[] = [];
 
 		for (const argument of this.arguments) {
-			const response = await argument.run(source);
+			const response = await argument.run(source, args);
 
 			if (!response.valid) {
 				return response;
 			}
 
-			if (response.value !== null) args.push(response.value);
+			args.push(response.value ?? undefined);
 		}
 
 		return {

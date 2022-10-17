@@ -107,7 +107,7 @@ export type MappedArgumentValue<
 export type ArgumentValue<
 	T extends ArgumentType = ArgumentTypes,
 	R extends boolean = true
-> = R extends true ? ArgumentValueMap[T] : ArgumentValueMap[T] | null;
+> = R extends true ? ArgumentValueMap[T] : ArgumentValueMap[T] | undefined;
 
 const ARGUMENT_TYPE_TO_FUNCTION_NAME = {
 	[ArgumentType.String]: 'getString',
@@ -148,6 +148,7 @@ export interface ArgumentOptionsBase<
 	required?: R;
 	filter?: ArgumentFilter<MappedArgumentValue<T, R, M>>;
 	mapper?: ArgumentMapper<T, M>;
+	ignoreIfDefined?: number;
 	default?: R extends true
 		? undefined
 		: ArgumentDefault<MappedArgumentValue<T, R, M>>;
@@ -193,6 +194,9 @@ export class Argument<
 	/** Additional options for the argument */
 	private options: Partial<ArgumentOptionsExtra<T>> = {};
 
+	/** Ignore this Argument if the argument at the provided index has been supplied */
+	private ignoreIfDefined?: number;
+
 	constructor(options: ArgumentOptions<T, R, M>) {
 		this.type = options.type;
 		this.name = options.name;
@@ -204,6 +208,7 @@ export class Argument<
 		this.default = options.default;
 		this.required = options.required ?? true;
 		this.error = options.error;
+		this.ignoreIfDefined = options.ignoreIfDefined;
 
 		/* eslint-disable @typescript-eslint/ban-ts-comment */
 
@@ -247,8 +252,19 @@ export class Argument<
 
 	/** Executes the argument and returns a validation response */
 	async run(
-		source: CommandSource
-	): Promise<ArgumentResponse<T, R, boolean, M>> {
+		source: CommandSource,
+		args: MappedArgumentValue<ArgumentTypes, false>[]
+	): Promise<ArgumentResponse<T, R, boolean, M | undefined>> {
+		if (
+			this.ignoreIfDefined !== undefined &&
+			args[this.ignoreIfDefined] === undefined
+		) {
+			return {
+				valid: true,
+				value: undefined,
+			};
+		}
+
 		let argument = (
 			source.options as CommandInteractionOptionResolver<'cached'>
 		)[ARGUMENT_TYPE_TO_FUNCTION_NAME[this.type]](
