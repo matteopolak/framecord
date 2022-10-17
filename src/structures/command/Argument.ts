@@ -124,8 +124,8 @@ const ARGUMENT_TYPE_TO_FUNCTION_NAME = {
 } as const;
 
 export type ArgumentFilter<T> = (
-	source: CommandInteraction,
-	argument: T
+	argument: T,
+	source: CommandInteraction
 ) => Promise<boolean> | boolean;
 
 export type ArgumentMapper<T extends ArgumentType, M> = (
@@ -255,7 +255,7 @@ export class Argument<T extends ArgumentType, R extends boolean, M = T> {
 				if (
 					argument !== null &&
 					this.filter &&
-					!(await this.filter(source, argument))
+					!(await this.filter(argument, source))
 				) {
 					throw new Error('input did not pass filter');
 				}
