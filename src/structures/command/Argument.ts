@@ -159,7 +159,11 @@ export type ArgumentOptions<
 	M = T
 > = ArgumentOptionsBase<T, R, M> & ArgumentOptionsExtra<T>;
 
-export class Argument<T extends ArgumentType, R extends boolean, M = T> {
+export class Argument<
+	T extends ArgumentType = ArgumentTypes,
+	R extends boolean = true,
+	M = T
+> {
 	/**
 	 * The type of argument. For example, `ArgumentType.User` will require
 	 * the executor to provide a `User`

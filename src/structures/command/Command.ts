@@ -110,11 +110,7 @@ export class Command extends Events {
 	 * An array of command arguments, values are applied to the `run` method
 	 * in the same order that they are provided here
 	 */
-	public readonly arguments: Argument<
-		ArgumentTypes,
-		boolean,
-		NonNullable<unknown>
-	>[];
+	public readonly arguments: Argument[];
 
 	/**
 	 * A `Collection` of subcommands, automatically populated when
