@@ -129,8 +129,8 @@ export type ArgumentFilter<T> = (
 ) => Promise<boolean> | boolean;
 
 export type ArgumentMapper<T extends ArgumentType, M> = (
-	source: CommandInteraction,
-	argument: ArgumentValue<T, true>
+	argument: ArgumentValue<T, true>,
+	source: CommandInteraction
 ) => M;
 
 export interface ArgumentOptionsBase<
@@ -245,8 +245,8 @@ export class Argument<T extends ArgumentType, R extends boolean, M = T> {
 
 		if (this.mapper && argument !== null) {
 			argument = (await this.mapper(
-				source,
-				argument as ArgumentValue<T, true>
+				argument as ArgumentValue<T, true>,
+				source
 			)) as MappedArgumentValue<T, R, M>;
 		}
 
