@@ -110,7 +110,8 @@ export class Command extends Events {
 	 * An array of command arguments, values are applied to the `run` method
 	 * in the same order that they are provided here
 	 */
-	public readonly arguments: Argument[];
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	public readonly arguments: Argument<ArgumentTypes, boolean, any>[];
 
 	/**
 	 * A `Collection` of subcommands, automatically populated when
