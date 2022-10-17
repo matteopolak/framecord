@@ -148,7 +148,7 @@ export interface ArgumentOptionsBase<
 	required?: R;
 	filter?: ArgumentFilter<MappedArgumentValue<T, R, M>>;
 	mapper?: ArgumentMapper<T, M>;
-	ignoreIfDefined?: number;
+	ignoreIfDefined?: R extends true ? undefined : number;
 	default?: R extends true
 		? undefined
 		: ArgumentDefault<MappedArgumentValue<T, R, M>>;
