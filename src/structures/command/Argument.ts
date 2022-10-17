@@ -2,7 +2,6 @@ import {
 	User,
 	GuildChannel,
 	Attachment,
-	CommandInteraction,
 	Role,
 	GuildMember,
 	CommandInteractionOptionResolver,
@@ -125,13 +124,17 @@ const ARGUMENT_TYPE_TO_FUNCTION_NAME = {
 
 export type ArgumentFilter<T> = (
 	argument: T,
-	source: CommandInteraction
+	source: CommandSource
 ) => Promise<boolean> | boolean;
 
 export type ArgumentMapper<T extends ArgumentType, M> = (
 	argument: ArgumentValue<T, true>,
-	source: CommandInteraction
+	source: CommandSource
 ) => M;
+
+export type ArgumentDefault<T> =
+	| ((source: CommandSource) => Promise<T> | T)
+	| T;
 
 export interface ArgumentOptionsBase<
 	T extends ArgumentType,
@@ -145,6 +148,9 @@ export interface ArgumentOptionsBase<
 	required?: R;
 	filter?: ArgumentFilter<MappedArgumentValue<T, R, M>>;
 	mapper?: ArgumentMapper<T, M>;
+	default: R extends true
+		? undefined
+		: undefined | ArgumentDefault<MappedArgumentValue<T, R, M>>;
 }
 
 export type ArgumentOptions<
@@ -175,6 +181,8 @@ export class Argument<T extends ArgumentType, R extends boolean, M = T> {
 	/** Maps the input to an output */
 	private mapper?: ArgumentMapper<T, M>;
 
+	private default?: ArgumentDefault<MappedArgumentValue<T, R, M>>;
+
 	/** The error to display if the filter is not passed */
 	private error?: string;
 
@@ -189,6 +197,7 @@ export class Argument<T extends ArgumentType, R extends boolean, M = T> {
 			| ArgumentFilter<MappedArgumentValue<T, R, M>>
 			| undefined;
 		this.mapper = options.mapper;
+		this.default = options.default;
 		this.required = options.required ?? true;
 		this.error = options.error;
 
@@ -242,6 +251,18 @@ export class Argument<T extends ArgumentType, R extends boolean, M = T> {
 			this.name,
 			this.required
 		) as MappedArgumentValue<T, R, M>;
+
+		if (argument === null && this.default) {
+			return {
+				valid: true,
+				value:
+					typeof this.default === 'function'
+						? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						  // @ts-ignore
+						  await this.default(source)
+						: this.default,
+			};
+		}
 
 		if (this.mapper && argument !== null) {
 			argument = (await this.mapper(
