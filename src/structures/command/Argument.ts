@@ -257,17 +257,13 @@ export class Argument<
 		index: number
 	): Promise<ArgumentResponse<T, R, boolean, M | undefined>> {
 		if (this.ignoreIfDefined !== undefined) {
-			index =
+			const undefinedIndex =
 				this.ignoreIfDefined < 0
 					? index + this.ignoreIfDefined
 					: this.ignoreIfDefined;
 
-			if (args[index] === undefined) {
-				return {
-					valid: true,
-					applyTo: index,
-					value: undefined,
-				};
+			if (args[undefinedIndex] === undefined) {
+				index = undefinedIndex;
 			}
 		}
 
