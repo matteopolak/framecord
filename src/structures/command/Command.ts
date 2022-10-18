@@ -28,6 +28,7 @@ export type CommandSource = CommandInteraction<'cached'>;
 export interface CommandOptions {
 	client: Client;
 	name: string;
+	default: boolean;
 }
 
 export interface CommandExt {
@@ -131,12 +132,16 @@ export class Command extends Events {
 	/** A reference to the main client */
 	protected readonly client: Client;
 
+	/** Whether the command exists or if it is merely a container for its children */
+	public readonly default: boolean;
+
 	constructor(options: CommandOptions) {
 		super();
 
 		this.arguments = [];
 		this.name = options.name;
 		this.client = options.client;
+		this.default = options.default;
 	}
 
 	/** Validates a `CommandSource` */

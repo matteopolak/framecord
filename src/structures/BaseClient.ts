@@ -108,6 +108,7 @@ export default class Client extends DiscordClient {
 			new CommandClass({
 				client: this,
 				name,
+				default: false,
 			}),
 			parent
 		);
@@ -160,10 +161,13 @@ export default class Client extends DiscordClient {
 			if (done) {
 				for (const childPath of id) {
 					const commandPromise = localCommands.get(childPath);
-					if (!commandPromise) continue;
 
 					await commandPromise;
-					const command = parent.get(childPath)!;
+					const command =
+						parent.get(childPath) ??
+						parent
+							.set(childPath, new Command({ client: this, name: childPath, default: true, }))
+							.get(childPath)!;
 
 					const promise = this.compileCommandDirectory(
 						join(path, childPath),
