@@ -155,6 +155,7 @@ export class Command extends Events {
 		}
 
 		const args: MappedArgumentValue<ArgumentTypes, false>[] = [];
+		let nextIndex = 0;
 
 		for (const [index, argument] of this.arguments.entries()) {
 			const response = await argument.run(source, args, index);
@@ -163,7 +164,8 @@ export class Command extends Events {
 				return response;
 			}
 
-			args[response.applyTo] = response.value ?? undefined;
+			args[response.applyTo === index ? nextIndex++ : response.applyTo] =
+				response.value;
 		}
 
 		return {

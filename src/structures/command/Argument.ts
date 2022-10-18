@@ -267,11 +267,13 @@ export class Argument<
 			}
 		}
 
-		let argument = (
+		let mapped = false;
+		let argument = ((
 			source.options as CommandInteractionOptionResolver<'cached'>
-		)[ARGUMENT_TYPE_TO_FUNCTION_NAME[this.type]](this.name, this.required) as M;
+		)[ARGUMENT_TYPE_TO_FUNCTION_NAME[this.type]](this.name, this.required) ??
+			undefined) as M;
 
-		if (argument === null && this.default) {
+		if (argument === undefined && this.default !== undefined) {
 			return {
 				valid: true,
 				applyTo: index,
@@ -284,7 +286,8 @@ export class Argument<
 			};
 		}
 
-		if (this.mapper && argument !== null) {
+		if (this.mapper && argument !== undefined) {
+			mapped = true;
 			argument = (await this.mapper(
 				argument as ArgumentValue<T, true>,
 				source
@@ -294,7 +297,7 @@ export class Argument<
 		if (this.filter) {
 			try {
 				if (
-					argument !== null &&
+					(argument !== undefined || mapped) &&
 					this.filter &&
 					!(await this.filter(argument, source))
 				) {
