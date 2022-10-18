@@ -51,6 +51,7 @@ export type ArgumentResponse<
 	? {
 			valid: true;
 			value: M;
+			applyTo: number;
 	  }
 	: V extends false
 	? {
@@ -255,18 +256,19 @@ export class Argument<
 		args: MappedArgumentValue<ArgumentTypes, false, ArgumentTypes>[],
 		index: number
 	): Promise<ArgumentResponse<T, R, boolean, M | undefined>> {
-		if (
-			this.ignoreIfDefined !== undefined &&
-			args[
+		if (this.ignoreIfDefined !== undefined) {
+			index =
 				this.ignoreIfDefined < 0
 					? index + this.ignoreIfDefined
-					: this.ignoreIfDefined
-			] === undefined
-		) {
-			return {
-				valid: true,
-				value: undefined,
-			};
+					: this.ignoreIfDefined;
+
+			if (args[index] === undefined) {
+				return {
+					valid: true,
+					applyTo: index,
+					value: undefined,
+				};
+			}
 		}
 
 		let argument = (
@@ -276,6 +278,7 @@ export class Argument<
 		if (argument === null && this.default) {
 			return {
 				valid: true,
+				applyTo: index,
 				value:
 					typeof this.default === 'function'
 						? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -312,6 +315,7 @@ export class Argument<
 
 		return {
 			valid: true,
+			applyTo: index,
 			value: argument,
 		};
 	}

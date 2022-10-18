@@ -163,7 +163,7 @@ export class Command extends Events {
 				return response;
 			}
 
-			args.push(response.value ?? undefined);
+			args[response.applyTo] = response.value ?? undefined;
 		}
 
 		return {
