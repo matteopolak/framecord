@@ -146,10 +146,10 @@ export interface ArgumentOptionsBase<
 	type: T;
 	error?: string;
 	required?: R;
-	filter?: ArgumentFilter<M>;
+	filter?: ArgumentFilter<Awaited<M>>;
 	mapper?: ArgumentMapper<T, M>;
 	ignoreIfDefined?: R extends true ? undefined : number;
-	default?: R extends true ? undefined : ArgumentDefault<M>;
+	default?: R extends true ? undefined : ArgumentDefault<Awaited<M>>;
 }
 
 export type ArgumentOptions<
