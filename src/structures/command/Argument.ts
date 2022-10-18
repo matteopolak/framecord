@@ -46,11 +46,11 @@ export type ArgumentResponse<
 	T extends ArgumentType,
 	R extends boolean,
 	V extends boolean = boolean,
-	M = T
+	M = ArgumentValue<T, R>
 > = V extends true
 	? {
 			valid: true;
-			value: MappedArgumentValue<T, R, M>;
+			value: M;
 	  }
 	: V extends false
 	? {
@@ -101,8 +101,8 @@ export type ArgumentOptionsExtra<T> = Omit<
 export type MappedArgumentValue<
 	T extends ArgumentType = ArgumentTypes,
 	R extends boolean = true,
-	M = ArgumentValue<T, R>
-> = M extends ArgumentValue ? M : Awaited<M>;
+	M = T
+> = M extends ArgumentType ? ArgumentValue<M, R> : Awaited<M>;
 
 export type ArgumentValue<
 	T extends ArgumentType = ArgumentTypes,
@@ -139,19 +139,17 @@ export type ArgumentDefault<T> =
 export interface ArgumentOptionsBase<
 	T extends ArgumentType,
 	R extends boolean = true,
-	M = T
+	M = ArgumentValue<T, R>
 > {
 	name: string;
 	description: string;
 	type: T;
 	error?: string;
 	required?: R;
-	filter?: ArgumentFilter<MappedArgumentValue<T, R, M>>;
+	filter?: ArgumentFilter<M>;
 	mapper?: ArgumentMapper<T, M>;
 	ignoreIfDefined?: R extends true ? undefined : number;
-	default?: R extends true
-		? undefined
-		: ArgumentDefault<MappedArgumentValue<T, R, M>>;
+	default?: R extends true ? undefined : ArgumentDefault<M>;
 }
 
 export type ArgumentOptions<
@@ -181,12 +179,12 @@ export class Argument<
 	public required: R | true;
 
 	/** Additional filter that must be passed */
-	private filter?: ArgumentFilter<MappedArgumentValue<T, R, M>>;
+	private filter?: ArgumentFilter<M>;
 
 	/** Maps the input to an output */
 	private mapper?: ArgumentMapper<T, M>;
 
-	private default?: ArgumentDefault<MappedArgumentValue<T, R, M>>;
+	private default?: ArgumentDefault<M>;
 
 	/** The error to display if the filter is not passed */
 	private error?: string;
@@ -204,9 +202,7 @@ export class Argument<
 		this.type = options.type;
 		this.name = options.name;
 		this.description = options.description;
-		this.filter = options.filter as
-			| ArgumentFilter<MappedArgumentValue<T, R, M>>
-			| undefined;
+		this.filter = options.filter as ArgumentFilter<M> | undefined;
 		this.mapper = options.mapper;
 		this.default = options.default;
 		this.required = options.required ?? true;
@@ -256,7 +252,7 @@ export class Argument<
 	/** Executes the argument and returns a validation response */
 	async run(
 		source: CommandSource,
-		args: MappedArgumentValue<ArgumentTypes, false>[],
+		args: MappedArgumentValue<ArgumentTypes, false, ArgumentTypes>[],
 		index: number
 	): Promise<ArgumentResponse<T, R, boolean, M | undefined>> {
 		if (
@@ -275,10 +271,7 @@ export class Argument<
 
 		let argument = (
 			source.options as CommandInteractionOptionResolver<'cached'>
-		)[ARGUMENT_TYPE_TO_FUNCTION_NAME[this.type]](
-			this.name,
-			this.required
-		) as MappedArgumentValue<T, R, M>;
+		)[ARGUMENT_TYPE_TO_FUNCTION_NAME[this.type]](this.name, this.required) as M;
 
 		if (argument === null && this.default) {
 			return {
@@ -296,7 +289,7 @@ export class Argument<
 			argument = (await this.mapper(
 				argument as ArgumentValue<T, true>,
 				source
-			)) as MappedArgumentValue<T, R, M>;
+			)) as M;
 		}
 
 		if (this.filter) {
