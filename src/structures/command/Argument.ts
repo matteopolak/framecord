@@ -161,7 +161,7 @@ export type ArgumentOptions<
 export class Argument<
 	T extends ArgumentType = ArgumentTypes,
 	R extends boolean = true,
-	M = T
+	M = ArgumentValue<T, R>
 > {
 	/**
 	 * The type of argument. For example, `ArgumentType.User` will require
