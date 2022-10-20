@@ -121,10 +121,6 @@ export default class Client extends DiscordClient {
 	) {
 		let required = false;
 
-		if (command.permissions.bitfield > 0 && parent !== this.commands) {
-			throw new Error('permissions are only permitted on parent commands');
-		}
-
 		for (const argument of command.arguments) {
 			if (!argument.required && required) {
 				throw new Error(
@@ -166,7 +162,10 @@ export default class Client extends DiscordClient {
 					const command =
 						parent.get(childPath) ??
 						parent
-							.set(childPath, new Command({ client: this, name: childPath, default: true, }))
+							.set(
+								childPath,
+								new Command({ client: this, name: childPath, default: true })
+							)
 							.get(childPath)!;
 
 					const promise = this.compileCommandDirectory(
