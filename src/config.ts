@@ -1,4 +1,8 @@
-import { ArgumentResponse, ArgumentTypes } from '@structs/Argument';
+import {
+	ArgumentResponse,
+	ArgumentType,
+	ArgumentTypes,
+} from '@structs/Argument';
 import { CommandSource } from '@structs/Command';
 import { formatListing } from '@util/message';
 import { PermissionsBitField } from 'discord.js';
@@ -10,9 +14,8 @@ export const config = {
 		colour: 0xffffff,
 	},
 	messages: {
-		parameterFailure: (
-			response: ArgumentResponse<ArgumentTypes, boolean, false>
-		) => `Error with parameter \`${response.source}\``,
+		parameterFailure: (response: ArgumentResponse<ArgumentType, false>) =>
+			`Error with parameter \`${response.source}\``,
 		insufficientPermissions: (_: CommandSource, need: PermissionsBitField) =>
 			`You need ${formatListing(
 				need.toArray(),

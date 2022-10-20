@@ -3,14 +3,16 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandSubCommandData,
 	ApplicationCommandSubGroupData,
+	ChannelType,
 	Collection,
 	CommandInteraction,
 	PermissionsBitField,
 } from 'discord.js';
 import {
 	Argument,
+	ArgumentType,
 	ArgumentTypes,
-	MappedArgumentValue,
+	ArgumentValue,
 } from '@structs/Argument';
 import Client from '@structs/BaseClient';
 import { Events } from '@structs/Events';
@@ -31,14 +33,6 @@ export interface CommandOptions {
 	default: boolean;
 }
 
-export interface CommandExt {
-	run(
-		source: CommandSource,
-		...args: Argument<ArgumentTypes, boolean>[]
-	): CommandResponse;
-	init(): Promise<void> | void;
-}
-
 export type CommandCheckResponse =
 	| {
 			valid: false;
@@ -47,7 +41,7 @@ export type CommandCheckResponse =
 	  }
 	| {
 			valid: true;
-			value: MappedArgumentValue<ArgumentTypes, true, unknown>[];
+			value: unknown[];
 	  };
 
 /**
@@ -112,7 +106,7 @@ export class Command extends Events {
 	 * in the same order that they are provided here
 	 */
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	public readonly arguments: Argument<ArgumentTypes, boolean, any>[];
+	public readonly arguments: Argument<ArgumentType, boolean, any>[];
 
 	/**
 	 * A `Collection` of subcommands, automatically populated when
@@ -159,7 +153,7 @@ export class Command extends Events {
 			};
 		}
 
-		const args: MappedArgumentValue<ArgumentTypes, false>[] = [];
+		const args: unknown[] = [];
 		let nextIndex = 0;
 
 		for (const [index, argument] of this.arguments.entries()) {

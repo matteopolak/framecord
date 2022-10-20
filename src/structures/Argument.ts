@@ -42,12 +42,7 @@ export type ArgumentTypes =
 	| ArgumentType.Attachment
 	| ArgumentType.Member;
 
-export type ArgumentResponse<
-	T extends ArgumentType,
-	R extends boolean,
-	V extends boolean = boolean,
-	M = ArgumentValue<T, R>
-> = V extends true
+export type ArgumentResponse<M, V extends boolean = boolean> = V extends true
 	? {
 			valid: true;
 			value: M;
@@ -60,19 +55,6 @@ export type ArgumentResponse<
 			source: string;
 	  }
 	: never;
-
-interface ArgumentValueMap {
-	[ArgumentType.String]: string;
-	[ArgumentType.Integer]: number;
-	[ArgumentType.Boolean]: boolean;
-	[ArgumentType.User]: User;
-	[ArgumentType.Channel]: GuildChannel;
-	[ArgumentType.Role]: Role;
-	[ArgumentType.Mentionable]: Role | User | GuildChannel;
-	[ArgumentType.Number]: number;
-	[ArgumentType.Attachment]: Attachment;
-	[ArgumentType.Member]: GuildMember;
-}
 
 export type ArgumentOptionsExtra<T> = Omit<
 	T extends ArgumentType.String
@@ -99,16 +81,28 @@ export type ArgumentOptionsExtra<T> = Omit<
 	'type' | 'description' | 'name' | 'required'
 >;
 
-export type MappedArgumentValue<
-	T extends ArgumentType = ArgumentTypes,
-	R extends boolean = true,
-	M = T
-> = M extends ArgumentType ? ArgumentValue<M, R> : Awaited<M>;
-
-export type ArgumentValue<
-	T extends ArgumentType = ArgumentTypes,
-	R extends boolean = true
-> = R extends true ? ArgumentValueMap[T] : ArgumentValueMap[T] | undefined;
+export type ArgumentValue<T extends ArgumentType = ArgumentTypes> =
+	T extends ArgumentType.String
+		? string
+		: T extends ArgumentType.Integer
+		? number
+		: T extends ArgumentType.Boolean
+		? boolean
+		: T extends ArgumentType.User
+		? User
+		: T extends ArgumentType.Channel
+		? GuildChannel
+		: T extends ArgumentType.Role
+		? Role
+		: T extends ArgumentType.Mentionable
+		? Role | User | GuildChannel
+		: T extends ArgumentType.Number
+		? number
+		: T extends ArgumentType.Attachment
+		? Attachment
+		: T extends ArgumentType.Member
+		? GuildMember
+		: never;
 
 const ARGUMENT_TYPE_TO_FUNCTION_NAME = {
 	[ArgumentType.String]: 'getString',
@@ -123,13 +117,13 @@ const ARGUMENT_TYPE_TO_FUNCTION_NAME = {
 	[ArgumentType.Member]: 'getMember',
 } as const;
 
-export type ArgumentFilter<T> = (
-	argument: T,
+export type ArgumentFilter<T extends ArgumentType, M = T> = (
+	argument: M extends T ? ArgumentValue<T> : M,
 	source: CommandSource
 ) => Promise<boolean> | boolean;
 
 export type ArgumentMapper<T extends ArgumentType, M> = (
-	argument: ArgumentValue<T, true>,
+	argument: ArgumentValue<T>,
 	source: CommandSource
 ) => M;
 
@@ -137,58 +131,77 @@ export type ArgumentDefault<T> =
 	| ((source: CommandSource) => Promise<T> | T)
 	| T;
 
-export interface ArgumentOptionsBase<
+export interface RequiredArgumentOptionsBase<
 	T extends ArgumentType,
-	M,
-	R extends boolean = true
+	V extends ArgumentValue<T> = ArgumentValue<T>,
+	M = T
 > {
+	required?: true;
 	name: string;
 	description: string;
 	type: T;
 	error?: string;
-	required?: R;
-	filter?: ArgumentFilter<Awaited<M>>;
-	mapper?: ArgumentMapper<T, M>;
-	ignoreIfDefined?: R extends true ? undefined : number;
-	default?: R extends true ? undefined : ArgumentDefault<Awaited<M>>;
+	filter?: (argument: M, source: CommandSource) => boolean;
+	mapper?: (argument: V, source: CommandSource) => M;
+	default?: undefined;
+	ignoreIfDefined?: undefined;
+}
+
+export interface ArgumentOptionsBase<
+	T extends ArgumentType,
+	R extends boolean,
+	M
+> {
+	readonly required?: R;
+	readonly name: string;
+	readonly description: string;
+	readonly type: T;
+	readonly error?: string;
+	readonly mapper?: (argument: ArgumentValue<T>, source: CommandSource) => M;
+	readonly filter?: (
+		argument: unknown extends M ? ArgumentValue<T> : M,
+		source: CommandSource
+	) => boolean;
+	readonly default?: R extends false
+		? M | ((source: CommandSource) => M)
+		: undefined;
+	readonly ignoreIfDefined?: R extends false ? number : undefined;
 }
 
 export type ArgumentOptions<
 	T extends ArgumentType,
 	R extends boolean,
-	M = T
-> = ArgumentOptionsBase<T, M, R> & ArgumentOptionsExtra<T>;
+	M
+> = ArgumentOptionsBase<T, R, M> & ArgumentOptionsExtra<T>;
 
-export class Argument<
-	T extends ArgumentType = ArgumentTypes,
-	R extends boolean = true,
-	M = ArgumentValue<T, R>
-> {
+export class Argument<T extends ArgumentType, R extends boolean, M>
+	implements ArgumentOptionsBase<T, R, M>
+{
 	/**
 	 * The type of argument. For example, `ArgumentType.User` will require
 	 * the executor to provide a `User`
 	 */
-	public type: T;
+	public type: ArgumentOptionsBase<T, R, M>['type'];
 
 	/** The name of the slash command argument */
-	public name: string;
+	public name: ArgumentOptionsBase<T, R, M>['name'];
 
 	/** The description of the slash command argument */
-	public description: string;
+	public description: ArgumentOptionsBase<T, R, M>['description'];
 
 	/** Whether the argument must be provided */
-	public required: R | true;
+	public required?: ArgumentOptionsBase<T, R, M>['required'];
 
 	/** Additional filter that must be passed */
-	private filter?: ArgumentFilter<M>;
+	public filter?: ArgumentOptionsBase<T, R, M>['filter'];
 
 	/** Maps the input to an output */
-	private mapper?: ArgumentMapper<T, M>;
+	public mapper?: ArgumentOptionsBase<T, R, M>['mapper'];
 
-	private default?: ArgumentDefault<M>;
+	public default?: ArgumentOptionsBase<T, R, M>['default'];
 
 	/** The error to display if the filter is not passed */
-	private error?: string;
+	public error?: ArgumentOptionsBase<T, R, M>['error'];
 
 	/** Additional options for the argument */
 	private options: Partial<ArgumentOptionsExtra<T>> = {};
@@ -197,16 +210,16 @@ export class Argument<
 	 * Ignore this Argument if the argument at the provided index has been supplied.
 	 * If this value is negative, it will be the index relative to its own index.
 	 */
-	private ignoreIfDefined?: number;
+	public ignoreIfDefined?: ArgumentOptionsBase<T, R, M>['ignoreIfDefined'];
 
 	constructor(options: ArgumentOptions<T, R, M>) {
 		this.type = options.type;
 		this.name = options.name;
 		this.description = options.description;
-		this.filter = options.filter as ArgumentFilter<M> | undefined;
+		this.filter = options.filter;
 		this.mapper = options.mapper;
 		this.default = options.default;
-		this.required = options.required ?? true;
+		this.required = options.required;
 		this.error = options.error;
 		this.ignoreIfDefined = options.ignoreIfDefined;
 
@@ -253,9 +266,9 @@ export class Argument<
 	/** Executes the argument and returns a validation response */
 	async run(
 		source: CommandSource,
-		args: MappedArgumentValue<ArgumentTypes, false, ArgumentTypes>[],
+		args: M[],
 		index: number
-	): Promise<ArgumentResponse<T, R, boolean, M | undefined>> {
+	): Promise<ArgumentResponse<M, boolean>> {
 		if (this.ignoreIfDefined !== undefined) {
 			const undefinedIndex =
 				this.ignoreIfDefined < 0
@@ -288,10 +301,7 @@ export class Argument<
 
 		if (this.mapper && argument !== undefined) {
 			mapped = true;
-			argument = (await this.mapper(
-				argument as ArgumentValue<T, true>,
-				source
-			)) as M;
+			argument = (await this.mapper(argument as ArgumentValue<T>, source)) as M;
 		}
 
 		if (this.filter) {
@@ -299,6 +309,8 @@ export class Argument<
 				if (
 					(argument !== undefined || mapped) &&
 					this.filter &&
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-ignore
 					!(await this.filter(argument, source))
 				) {
 					throw new Error('input did not pass filter');

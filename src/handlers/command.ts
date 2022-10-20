@@ -1,4 +1,4 @@
-import { ArgumentResponse, ArgumentTypes } from '@structs/command/Argument';
+import { ArgumentResponse, ArgumentTypes } from '@structs/Argument';
 import { EventHandler } from '@structs/Events';
 import { Handler } from '@structs/Handler';
 import { embed, message } from '@util/message';
