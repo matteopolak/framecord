@@ -15,7 +15,7 @@ export {
 	CommandResponse,
 	CommandResponseValue,
 	CommandCheckResponse,
-} from '@structs/command/Command';
+} from '@structs/Command';
 export {
 	Argument,
 	ArgumentOptions,
@@ -25,4 +25,4 @@ export {
 	ArgumentType,
 	ArgumentTypes,
 	ArgumentValue,
-} from '@structs/command/Argument';
+} from '@structs/Argument';

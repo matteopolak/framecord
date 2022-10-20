@@ -15,7 +15,7 @@ import {
 	ApplicationCommandRoleOption,
 	ApplicationCommandStringOption,
 } from 'discord.js';
-import { CommandSource } from '@structs/command/Command';
+import { CommandSource } from '@structs/Command';
 
 export enum ArgumentType {
 	String = 3,
@@ -139,8 +139,8 @@ export type ArgumentDefault<T> =
 
 export interface ArgumentOptionsBase<
 	T extends ArgumentType,
-	R extends boolean = true,
-	M = ArgumentValue<T, R>
+	M,
+	R extends boolean = true
 > {
 	name: string;
 	description: string;
@@ -157,7 +157,7 @@ export type ArgumentOptions<
 	T extends ArgumentType,
 	R extends boolean,
 	M = T
-> = ArgumentOptionsBase<T, R, M> & ArgumentOptionsExtra<T>;
+> = ArgumentOptionsBase<T, M, R> & ArgumentOptionsExtra<T>;
 
 export class Argument<
 	T extends ArgumentType = ArgumentTypes,

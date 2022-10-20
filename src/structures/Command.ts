@@ -11,7 +11,7 @@ import {
 	Argument,
 	ArgumentTypes,
 	MappedArgumentValue,
-} from '@structs/command/Argument';
+} from '@structs/Argument';
 import Client from '@structs/BaseClient';
 import { Events } from '@structs/Events';
 import { SendableOptions } from '@util/message';

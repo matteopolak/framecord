@@ -6,7 +6,7 @@ import {
 	ClientOptions,
 	Collection,
 } from 'discord.js';
-import { Command } from '@structs/command/Command';
+import { Command } from '@structs/Command';
 import { join } from 'node:path';
 import { traverse } from '@util/fs';
 import { Handler } from '@structs/Handler';
