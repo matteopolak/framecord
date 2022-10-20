@@ -131,22 +131,6 @@ export type ArgumentDefault<T> =
 	| ((source: CommandSource) => Promise<T> | T)
 	| T;
 
-export interface RequiredArgumentOptionsBase<
-	T extends ArgumentType,
-	V extends ArgumentValue<T> = ArgumentValue<T>,
-	M = T
-> {
-	required?: true;
-	name: string;
-	description: string;
-	type: T;
-	error?: string;
-	filter?: (argument: M, source: CommandSource) => boolean;
-	mapper?: (argument: V, source: CommandSource) => M;
-	default?: undefined;
-	ignoreIfDefined?: undefined;
-}
-
 export interface ArgumentOptionsBase<
 	T extends ArgumentType,
 	R extends boolean,
@@ -159,11 +143,11 @@ export interface ArgumentOptionsBase<
 	readonly error?: string;
 	readonly mapper?: (argument: ArgumentValue<T>, source: CommandSource) => M;
 	readonly filter?: (
-		argument: unknown extends M ? ArgumentValue<T> : M,
+		argument: unknown extends M ? ArgumentValue<T> : Awaited<M>,
 		source: CommandSource
 	) => boolean;
 	readonly default?: R extends false
-		? M | ((source: CommandSource) => M)
+		? Awaited<M> | ((source: CommandSource) => Awaited<M>)
 		: undefined;
 	readonly ignoreIfDefined?: R extends false ? number : undefined;
 }
