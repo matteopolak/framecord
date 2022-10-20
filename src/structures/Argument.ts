@@ -42,7 +42,7 @@ export type ArgumentTypes =
 	| ArgumentType.Attachment
 	| ArgumentType.Member;
 
-export type ArgumentResponse<M, V extends boolean = boolean> = V extends true
+export type ArgumentResponse<M, V extends boolean> = V extends true
 	? {
 			valid: true;
 			value: M;

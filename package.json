@@ -6,7 +6,8 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
-		"docs": "typedoc src/index.ts --out framecord"
+		"docs": "typedoc src/index.ts --out framecord",
+		"check": "tsc --project tsconfig.json --noEmit"
 	},
 	"repository": {
 		"type": "git",

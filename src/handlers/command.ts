@@ -53,7 +53,7 @@ export default class CommandHandler extends Handler {
 					title:
 						response.source &&
 						config.messages.parameterFailure(
-							response as ArgumentResponse<ArgumentTypes, boolean, false>
+							response as ArgumentResponse<string, false>
 						),
 					description: response.value,
 				})

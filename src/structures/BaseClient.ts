@@ -128,7 +128,7 @@ export default class Client extends DiscordClient {
 				);
 			}
 
-			required = argument.required;
+			required = argument.required ?? true;
 		}
 
 		parent.set(command.name, command);
