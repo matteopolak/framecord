@@ -146,7 +146,11 @@ export interface ArgumentOptionsBase<
 		argument: unknown extends M ? ArgumentValue<T> : Awaited<M>,
 		source: CommandSource
 	) => boolean;
-	readonly default?: R extends false
+	readonly default?: unknown extends M
+		? R extends false
+			? ArgumentValue<T> | ((source: CommandSource) => ArgumentValue<T>)
+			: undefined
+		: R extends false
 		? Awaited<M> | ((source: CommandSource) => Awaited<M>)
 		: undefined;
 	readonly ignoreIfDefined?: R extends false ? number : undefined;
