@@ -122,9 +122,9 @@ export default class Client extends DiscordClient {
 		let required = true;
 
 		for (const argument of command.arguments) {
-			if (argument.required === false && required) {
+			if (argument.required !== false && !required) {
 				throw new Error(
-					'optional arguments must come after required arguments'
+					`${command.name}.${argument.name}: optional arguments must come after required arguments`
 				);
 			}
 
