@@ -15,6 +15,7 @@ import ReadyHandler from '@handlers/ready';
 
 export interface BaseOptions {
 	publishCommandsOnReady?: boolean;
+	registerCommandHandler?: boolean;
 	verbose?: boolean;
 }
 
@@ -270,7 +271,9 @@ export default class Client extends DiscordClient {
 		if (this.initialized) return;
 		this.initialized = true;
 
-		this.registerHandler(new CommandHandler({ client: this }));
+		if (this.settings.registerCommandHandler !== false)
+			this.registerHandler(new CommandHandler({ client: this }));
+
 		this.registerHandler(new ReadyHandler({ client: this }));
 	}
 
