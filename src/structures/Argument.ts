@@ -148,10 +148,14 @@ export interface ArgumentOptionsBase<
 	) => boolean;
 	readonly default?: unknown extends M
 		? R extends false
-			? ArgumentValue<T> | ((source: CommandSource) => ArgumentValue<T>)
+			?
+					| ArgumentValue<T>
+					| ((
+							source: CommandSource
+					  ) => ArgumentValue<T> | Promise<ArgumentValue<T>>)
 			: undefined
 		: R extends false
-		? Awaited<M> | ((source: CommandSource) => Awaited<M>)
+		? Awaited<M> | ((source: CommandSource) => Awaited<M> | Promise<Awaited<M>>)
 		: undefined;
 	readonly ignoreIfDefined?: R extends false ? number : undefined;
 }
