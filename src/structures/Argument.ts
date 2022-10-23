@@ -178,7 +178,7 @@ export class Argument<T extends ArgumentType, R extends boolean, M>
 	public description: ArgumentOptionsBase<T, R, M>['description'];
 
 	/** Whether the argument must be provided */
-	public required?: ArgumentOptionsBase<T, R, M>['required'];
+	public required: ArgumentOptionsBase<T, R, M>['required'];
 
 	/** Additional filter that must be passed */
 	public filter?: ArgumentOptionsBase<T, R, M>['filter'];
@@ -271,8 +271,10 @@ export class Argument<T extends ArgumentType, R extends boolean, M>
 		let mapped = false;
 		let argument = ((
 			source.options as CommandInteractionOptionResolver<'cached'>
-		)[ARGUMENT_TYPE_TO_FUNCTION_NAME[this.type]](this.name, this.required) ??
-			undefined) as M;
+		)[ARGUMENT_TYPE_TO_FUNCTION_NAME[this.type]](
+			this.name,
+			this.required ?? true
+		) ?? undefined) as M;
 
 		if (argument === undefined && this.default !== undefined) {
 			return {
@@ -329,7 +331,7 @@ export class Argument<T extends ArgumentType, R extends boolean, M>
 				  this.type) as any,
 			name: this.name,
 			description: this.description,
-			required: this.required,
+			required: this.required ?? true,
 		};
 	}
 }
