@@ -206,21 +206,21 @@ export class Command extends Events {
 	}
 
 	/** Constructs and returns the parts of the absolute path to the command */
-	public pathParts(): string[] {
+	public get pathParts(): string[] {
 		if (this._pathParts) return this._pathParts;
 
 		const parts = this.parent
-			? this.parent.pathParts().concat(this.name)
+			? this.parent.pathParts.concat(this.name)
 			: [this.name];
 
 		return (this._pathParts = parts);
 	}
 
 	/** Constructs and returns the absolute path to the command */
-	public path() {
+	public get path() {
 		if (this._path) return this._path;
 
-		return (this._path = this.pathParts().join(' '));
+		return (this._path = this.pathParts.join(' '));
 	}
 
 	/**
