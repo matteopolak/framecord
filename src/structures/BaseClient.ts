@@ -103,15 +103,15 @@ export default class Client extends DiscordClient {
 		parent: Collection<string, Command> = this.commands
 	) {
 		const CommandClass: typeof Command = (await import(path)).default;
+		const command = new CommandClass({
+			client: this,
+			name,
+			default: false,
+		});
 
-		this.registerCommand(
-			new CommandClass({
-				client: this,
-				name,
-				default: false,
-			}),
-			parent
-		);
+		this.registerCommand(command, parent);
+
+		return command;
 	}
 
 	/** Registers a single command */
@@ -131,6 +131,12 @@ export default class Client extends DiscordClient {
 			required = argument.required ?? true;
 		}
 
+		if (parent.has(command.name)) {
+			throw new Error(
+				`a command by the name of ${command.name} already exists (${command.constructor.name})`
+			);
+		}
+
 		parent.set(command.name, command);
 
 		command.init();
@@ -147,7 +153,7 @@ export default class Client extends DiscordClient {
 		parent: Collection<string, Command> = this.commands
 	): Promise<number> {
 		const paths = traverse(path);
-		const localCommands: Map<string, Promise<void>> = new Map();
+		const promises: Promise<Command>[] = [];
 
 		let count = 0;
 
@@ -155,21 +161,25 @@ export default class Client extends DiscordClient {
 			const { value: id, done } = await paths.next();
 
 			if (done) {
-				for (const childPath of id) {
-					const commandPromise = localCommands.get(childPath);
+				await Promise.all(promises);
 
-					await commandPromise;
-					const command =
-						parent.get(childPath) ??
-						parent
-							.set(
-								childPath,
-								new Command({ client: this, name: childPath, default: true })
-							)
-							.get(childPath)!;
+				for (const name of id) {
+					if (parent.has(name)) {
+						throw new Error(
+							`a subcommand group cannot have the same name as a subcommand: ${name}`
+						);
+					}
+
+					const command = new Command({
+						client: this,
+						name,
+						default: true,
+					});
+
+					parent.set(command.name, command);
 
 					const promise = this.compileCommandDirectory(
-						join(path, childPath),
+						join(path, name),
 						async,
 						command.subcommands
 					);
@@ -188,10 +198,7 @@ export default class Client extends DiscordClient {
 
 			const name = id.slice(0, -3);
 
-			localCommands.set(
-				name,
-				this.compileCommand(join(path, id), name, parent)
-			);
+			promises.push(this.compileCommand(join(path, id), name, parent));
 		}
 	}
 
