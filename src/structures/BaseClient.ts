@@ -119,10 +119,10 @@ export default class Client extends DiscordClient {
 		command: Command,
 		parent: Collection<string, Command> = this.commands
 	) {
-		let required = false;
+		let required = true;
 
 		for (const argument of command.arguments) {
-			if (!argument.required && required) {
+			if (argument.required === false && required) {
 				throw new Error(
 					'optional arguments must come after required arguments'
 				);
