@@ -1,8 +1,4 @@
-import {
-	ArgumentResponse,
-	ArgumentType,
-	ArgumentTypes,
-} from '@structs/Argument';
+import { ArgumentResponse, ArgumentType } from '@structs/Argument';
 import { CommandSource } from '@structs/Command';
 import { formatListing } from '@util/message';
 import { PermissionsBitField } from 'discord.js';

@@ -7,11 +7,7 @@ import {
 	CommandInteraction,
 	PermissionsBitField,
 } from 'discord.js';
-import {
-	Argument,
-	ArgumentType,
-
-} from '@structs/Argument';
+import { Argument, ArgumentType } from '@structs/Argument';
 import Client from '@structs/BaseClient';
 import { Events } from '@structs/Events';
 import { SendableOptions } from '@util/message';
@@ -29,6 +25,7 @@ export interface CommandOptions {
 	client: Client;
 	name: string;
 	default: boolean;
+	parent?: Command;
 }
 
 export type CommandCheckResponse =
@@ -127,6 +124,15 @@ export class Command extends Events {
 	/** Whether the command exists or if it is merely a container for its children */
 	public readonly default: boolean;
 
+	/** The parent of the command */
+	public readonly parent?: Command;
+
+	/** The full string of the command path */
+	private _path?: string;
+
+	/** An array of command names for the path */
+	private _pathParts?: string[];
+
 	constructor(options: CommandOptions) {
 		super();
 
@@ -134,6 +140,7 @@ export class Command extends Events {
 		this.name = options.name;
 		this.client = options.client;
 		this.default = options.default;
+		this.parent = options.parent;
 	}
 
 	/** Validates a `CommandSource` */
@@ -196,6 +203,24 @@ export class Command extends Events {
 	/** Initialized when the command is compiled */
 	async init() {
 		// Initialization code goes here
+	}
+
+	/** Constructs and returns the parts of the absolute path to the command */
+	public pathParts(): string[] {
+		if (this._pathParts) return this._pathParts;
+
+		const parts = this.parent
+			? this.parent.pathParts().concat(this.name)
+			: [this.name];
+
+		return (this._pathParts = parts);
+	}
+
+	/** Constructs and returns the absolute path to the command */
+	public path() {
+		if (this._path) return this._path;
+
+		return (this._path = this.pathParts().join(' '));
 	}
 
 	/**

@@ -1,4 +1,5 @@
-import { ArgumentResponse, ArgumentTypes } from '@structs/Argument';
+import { ArgumentResponse } from '@structs/Argument';
+import { Command } from '@structs/Command';
 import { EventHandler } from '@structs/Events';
 import { Handler } from '@structs/Handler';
 import { embed, message } from '@util/message';
@@ -85,9 +86,18 @@ export default class CommandHandler extends Handler {
 			// Real errors are (almost) always some type of Error object so it won't
 			// print those.
 			if (typeof e === 'string') {
-				return message(interaction, embed({ description: e, title: 'Error' }));
+				return message(
+					interaction,
+					embed({
+						description: e,
+						title: `Error with command \`${command.path}\``,
+					})
+				);
 			} else {
 				try {
+					// If the `catch` method hasn't been overridden, don't use it
+					if (Command.prototype.catch === command.catch) throw e;
+
 					// Execute the fallback command
 					const response = await command.catch(
 						e as Error,
@@ -110,7 +120,10 @@ export default class CommandHandler extends Handler {
 					if (typeof e === 'string') {
 						return message(
 							interaction,
-							embed({ description: e, title: 'Error' })
+							embed({
+								description: e,
+								title: `Error with command \`${command.path}\``,
+							})
 						);
 					}
 

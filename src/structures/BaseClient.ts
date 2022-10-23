@@ -100,11 +100,13 @@ export default class Client extends DiscordClient {
 	public async compileCommand(
 		path: string,
 		name: string,
-		parent: Collection<string, Command> = this.commands
+		parent: Collection<string, Command> = this.commands,
+		parentCommand?: Command
 	) {
 		const CommandClass: typeof Command = (await import(path)).default;
 		const command = new CommandClass({
 			client: this,
+			parent: parentCommand,
 			name,
 			default: false,
 		});
@@ -150,7 +152,8 @@ export default class Client extends DiscordClient {
 	public async compileCommandDirectory(
 		path: string,
 		async = true,
-		parent: Collection<string, Command> = this.commands
+		parent: Collection<string, Command> = this.commands,
+		parentCommand?: Command
 	): Promise<number> {
 		const paths = traverse(path);
 		const promises: Promise<Command>[] = [];
@@ -172,6 +175,7 @@ export default class Client extends DiscordClient {
 
 					const command = new Command({
 						client: this,
+						parent: parentCommand,
 						name,
 						default: true,
 					});
@@ -181,7 +185,8 @@ export default class Client extends DiscordClient {
 					const promise = this.compileCommandDirectory(
 						join(path, name),
 						async,
-						command.subcommands
+						command.subcommands,
+						command
 					);
 
 					if (async) {
@@ -198,7 +203,9 @@ export default class Client extends DiscordClient {
 
 			const name = id.slice(0, -3);
 
-			promises.push(this.compileCommand(join(path, id), name, parent));
+			promises.push(
+				this.compileCommand(join(path, id), name, parent, parentCommand)
+			);
 		}
 	}
 
@@ -210,8 +217,8 @@ export default class Client extends DiscordClient {
 			const { value: id, done } = await paths.next();
 
 			if (done) {
-				for (const childPath of id) {
-					await this.compileCommandDirectory(join(path, childPath));
+				for (const name of id) {
+					await this.compileHandlerDirectory(join(path, name));
 				}
 
 				return;
