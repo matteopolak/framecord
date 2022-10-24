@@ -196,7 +196,7 @@ export class Argument<T extends ArgumentType, R extends boolean, M>
 	public error?: ArgumentOptionsBase<T, R, M>['error'];
 
 	/** Additional options for the argument */
-	protected options: Partial<ArgumentOptionsExtra<T>> = {};
+	public options: Partial<ArgumentOptionsExtra<T>> = {};
 
 	/**
 	 * Ignore this Argument if the argument at the provided index has been supplied.
