@@ -16,17 +16,18 @@ import {
 	ApplicationCommandStringOption,
 } from 'discord.js';
 import { CommandSource } from '@structs/Command';
+import { ApplicationCommandOptionType } from 'discord.js';
 
 export enum ArgumentType {
-	String = 3,
-	Integer = 4,
-	Boolean = 5,
-	User = 6,
-	Channel = 7,
-	Role = 8,
-	Mentionable = 9,
-	Number = 10,
-	Attachment = 11,
+	String = ApplicationCommandOptionType.String,
+	Integer = ApplicationCommandOptionType.Integer,
+	Boolean = ApplicationCommandOptionType.Boolean,
+	User = ApplicationCommandOptionType.User,
+	Channel = ApplicationCommandOptionType.Channel,
+	Role = ApplicationCommandOptionType.Role,
+	Mentionable = ApplicationCommandOptionType.Mentionable,
+	Number = ApplicationCommandOptionType.Number,
+	Attachment = ApplicationCommandOptionType.Attachment,
 	Member = -1,
 }
 
@@ -167,7 +168,7 @@ export type ArgumentOptions<
 > = ArgumentOptionsBase<T, R, M> & ArgumentOptionsExtra<T>;
 
 export class Argument<T extends ArgumentType, R extends boolean, M>
-	implements ArgumentOptionsBase<T, R, M>
+implements ArgumentOptionsBase<T, R, M>
 {
 	/**
 	 * The type of argument. For example, `ArgumentType.User` will require
