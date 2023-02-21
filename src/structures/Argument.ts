@@ -14,20 +14,44 @@ import {
 	ApplicationCommandMentionableOption,
 	ApplicationCommandRoleOption,
 	ApplicationCommandStringOption,
+	ApplicationCommandAutocompleteStringOption,
 } from 'discord.js';
 import { CommandSource } from '@structs/Command';
 import { ApplicationCommandOptionType } from 'discord.js';
+import { ApplicationCommandChoicesOption } from 'discord.js';
+
+export type ArgumentTypeToDiscordType<T extends ArgumentType> = T extends ArgumentType.String
+	? ApplicationCommandOptionType.String
+	: T extends ArgumentType.Integer
+	? ApplicationCommandOptionType.Integer
+	: T extends ArgumentType.Boolean
+	? ApplicationCommandOptionType.Boolean
+	: T extends ArgumentType.User
+	? ApplicationCommandOptionType.User
+	: T extends ArgumentType.Channel
+	? ApplicationCommandOptionType.Channel
+	: T extends ArgumentType.Role
+	? ApplicationCommandOptionType.Role
+	: T extends ArgumentType.Mentionable
+	? ApplicationCommandOptionType.Mentionable
+	: T extends ArgumentType.Number
+	? ApplicationCommandOptionType.Number
+	: T extends ArgumentType.Attachment
+	? ApplicationCommandOptionType.Attachment
+	: T extends ArgumentType.Member
+	? ApplicationCommandOptionType.User
+	: never;
 
 export enum ArgumentType {
-	String = ApplicationCommandOptionType.String,
-	Integer = ApplicationCommandOptionType.Integer,
-	Boolean = ApplicationCommandOptionType.Boolean,
-	User = ApplicationCommandOptionType.User,
-	Channel = ApplicationCommandOptionType.Channel,
-	Role = ApplicationCommandOptionType.Role,
-	Mentionable = ApplicationCommandOptionType.Mentionable,
-	Number = ApplicationCommandOptionType.Number,
-	Attachment = ApplicationCommandOptionType.Attachment,
+	String = 3,
+	Integer = 4,
+	Boolean = 5,
+	User = 6,
+	Channel = 7,
+	Role = 8,
+	Mentionable = 9,
+	Number = 10,
+	Attachment = 11,
 	Member = -1,
 }
 
@@ -59,7 +83,7 @@ export type ArgumentResponse<M, V extends boolean> = V extends true
 
 export type ArgumentOptionsExtra<T> = Omit<
 	T extends ArgumentType.String
-		? ApplicationCommandStringOption
+		? ApplicationCommandStringOption | ApplicationCommandChoicesOption | ApplicationCommandAutocompleteStringOption
 		: T extends ArgumentType.Integer
 		? ApplicationCommandNumericOption
 		: T extends ArgumentType.Boolean
@@ -328,6 +352,7 @@ implements ArgumentOptionsBase<T, R, M>
 
 	/** Gets the Discord-compatible slash data */
 	public getSlashData(): ApplicationCommandOptionData {
+		// @ts-expect-error - Ignore the `autocomplete` key
 		return {
 			...this.options,
 			type: (this.type === ArgumentType.Member
