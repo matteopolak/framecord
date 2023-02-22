@@ -3,6 +3,8 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandSubCommandData,
 	ApplicationCommandSubGroupData,
+	AutocompleteInteraction,
+	ChatInputCommandInteraction,
 	Collection,
 	CommandInteraction,
 	PermissionsBitField,
@@ -249,5 +251,29 @@ export class Command extends Events {
 				ApplicationCommandSubCommandData | ApplicationCommandSubGroupData
 			>[],
 		};
+	}
+
+	/** Checks if the given Interaction points to this command. */
+	public is(interaction: AutocompleteInteraction | ChatInputCommandInteraction): boolean {
+		// Get the (optional) subcommand
+		const subCommand = interaction.options.getSubcommand(false);
+
+		// Get the (optional) subcommand group
+		const subCommandGroup = interaction.options.getSubcommandGroup(false);
+
+		// Get the root command, which is just the command name
+		const root = this.client.commands.get(interaction.commandName);
+
+		// Get the subcommand group (for commands nested two layers deep);
+		// default to the root if it doesn't exist
+		const parent = subCommandGroup
+			? root?.subcommands.get(subCommandGroup)
+			: root;
+
+		// Get the subcommand from the subcommand group if it exists; fall back
+		// to the previous node if it doesn't exist
+		const command = subCommand ? parent?.subcommands.get(subCommand) : parent;
+
+		return this === command;
 	}
 }
