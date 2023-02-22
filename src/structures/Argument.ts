@@ -18,7 +18,6 @@ import {
 } from 'discord.js';
 import { CommandSource } from '@structs/Command';
 import { ApplicationCommandOptionType } from 'discord.js';
-import { ApplicationCommandChoicesOption } from 'discord.js';
 
 export type ArgumentTypeToDiscordType<T extends ArgumentType> = T extends ArgumentType.String
 	? ApplicationCommandOptionType.String
@@ -83,7 +82,7 @@ export type ArgumentResponse<M, V extends boolean> = V extends true
 
 export type ArgumentOptionsExtra<T> = Omit<
 	T extends ArgumentType.String
-		? ApplicationCommandStringOption | ApplicationCommandChoicesOption | ApplicationCommandAutocompleteStringOption
+		? ApplicationCommandStringOption | ApplicationCommandAutocompleteStringOption
 		: T extends ArgumentType.Integer
 		? ApplicationCommandNumericOption
 		: T extends ArgumentType.Boolean
