@@ -161,7 +161,7 @@ export default class Client extends DiscordClient {
 
 		let count = 0;
 
-		for (;;) {
+		for (; ;) {
 			const { value: id, done } = await paths.next();
 
 			if (done) {
@@ -214,7 +214,7 @@ export default class Client extends DiscordClient {
 	public async compileHandlerDirectory(path: string) {
 		const paths = traverse(path);
 
-		for (;;) {
+		for (; ;) {
 			const { value: id, done } = await paths.next();
 
 			if (done) {

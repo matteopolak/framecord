@@ -32,14 +32,14 @@ export interface CommandOptions {
 
 export type CommandCheckResponse =
 	| {
-			valid: false;
-			value: string;
-			source?: string;
-	  }
+		valid: false;
+		value: string;
+		source?: string;
+	}
 	| {
-			valid: true;
-			value: unknown[];
-	  };
+		valid: true;
+		value: unknown[];
+	};
 
 /**
  * The base command to extend from.
@@ -154,7 +154,7 @@ export class Command extends Events {
 					source,
 					new PermissionsBitField(
 						(source.member.permissions.bitfield & this.permissions.bitfield) ^
-							this.permissions.bitfield
+						this.permissions.bitfield
 					)
 				),
 			};

@@ -41,7 +41,7 @@ export type ArgumentTypeToDiscordType<T extends ArgumentType> = T extends Argume
 	? ApplicationCommandOptionType.User
 	: never;
 
-export enum ArgumentType {
+export const enum ArgumentType {
 	String = 3,
 	Integer = 4,
 	Boolean = 5,
@@ -68,65 +68,65 @@ export type ArgumentTypes =
 
 export type ArgumentResponse<M, V extends boolean> = V extends true
 	? {
-			valid: true;
-			value: M;
-			applyTo: number;
-	  }
+		valid: true;
+		value: M;
+		applyTo: number;
+	}
 	: V extends false
 	? {
-			valid: false;
-			value: string;
-			source: string;
-	  }
+		valid: false;
+		value: string;
+		source: string;
+	}
 	: never;
 
 export type ArgumentOptionsExtra<T> = Omit<
 	T extends ArgumentType.String
-		? ApplicationCommandStringOption | ApplicationCommandAutocompleteStringOption
-		: T extends ArgumentType.Integer
-		? ApplicationCommandNumericOption
-		: T extends ArgumentType.Boolean
-		? ApplicationCommandBooleanOption
-		: T extends ArgumentType.User
-		? ApplicationCommandUserOption
-		: T extends ArgumentType.Channel
-		? ApplicationCommandChannelOption
-		: T extends ArgumentType.Role
-		? ApplicationCommandRoleOption
-		: T extends ArgumentType.Mentionable
-		? ApplicationCommandMentionableOption
-		: T extends ArgumentType.Number
-		? ApplicationCommandNumericOption
-		: T extends ArgumentType.Attachment
-		? ApplicationCommandAttachmentOption
-		: T extends ArgumentType.Member
-		? ApplicationCommandUserOption
-		: unknown,
+	? ApplicationCommandStringOption | ApplicationCommandAutocompleteStringOption
+	: T extends ArgumentType.Integer
+	? ApplicationCommandNumericOption
+	: T extends ArgumentType.Boolean
+	? ApplicationCommandBooleanOption
+	: T extends ArgumentType.User
+	? ApplicationCommandUserOption
+	: T extends ArgumentType.Channel
+	? ApplicationCommandChannelOption
+	: T extends ArgumentType.Role
+	? ApplicationCommandRoleOption
+	: T extends ArgumentType.Mentionable
+	? ApplicationCommandMentionableOption
+	: T extends ArgumentType.Number
+	? ApplicationCommandNumericOption
+	: T extends ArgumentType.Attachment
+	? ApplicationCommandAttachmentOption
+	: T extends ArgumentType.Member
+	? ApplicationCommandUserOption
+	: unknown,
 	'type' | 'description' | 'name' | 'required'
 >;
 
 export type ArgumentValue<T extends ArgumentType = ArgumentTypes> =
 	T extends ArgumentType.String
-		? string
-		: T extends ArgumentType.Integer
-		? number
-		: T extends ArgumentType.Boolean
-		? boolean
-		: T extends ArgumentType.User
-		? User
-		: T extends ArgumentType.Channel
-		? GuildChannel
-		: T extends ArgumentType.Role
-		? Role
-		: T extends ArgumentType.Mentionable
-		? Role | User | GuildChannel
-		: T extends ArgumentType.Number
-		? number
-		: T extends ArgumentType.Attachment
-		? Attachment
-		: T extends ArgumentType.Member
-		? GuildMember
-		: never;
+	? string
+	: T extends ArgumentType.Integer
+	? number
+	: T extends ArgumentType.Boolean
+	? boolean
+	: T extends ArgumentType.User
+	? User
+	: T extends ArgumentType.Channel
+	? GuildChannel
+	: T extends ArgumentType.Role
+	? Role
+	: T extends ArgumentType.Mentionable
+	? Role | User | GuildChannel
+	: T extends ArgumentType.Number
+	? number
+	: T extends ArgumentType.Attachment
+	? Attachment
+	: T extends ArgumentType.Member
+	? GuildMember
+	: never;
 
 const ARGUMENT_TYPE_TO_FUNCTION_NAME = {
 	[ArgumentType.String]: 'getString',
@@ -171,16 +171,16 @@ export interface ArgumentOptionsBase<
 		source: CommandSource
 	) => boolean;
 	readonly default?: unknown extends M
-		? R extends false
-			?
-					| ArgumentValue<T>
-					| ((
-							source: CommandSource
-					  ) => ArgumentValue<T> | Promise<ArgumentValue<T>>)
-			: undefined
-		: R extends false
-		? Awaited<M> | ((source: CommandSource) => Awaited<M> | Promise<Awaited<M>>)
-		: undefined;
+	? R extends false
+	?
+	| ArgumentValue<T>
+	| ((
+		source: CommandSource
+	) => ArgumentValue<T> | Promise<ArgumentValue<T>>)
+	: undefined
+	: R extends false
+	? Awaited<M> | ((source: CommandSource) => Awaited<M> | Promise<Awaited<M>>)
+	: undefined;
 	readonly ignoreIfDefined?: R extends false ? number : undefined;
 }
 
@@ -190,9 +190,7 @@ export type ArgumentOptions<
 	M
 > = ArgumentOptionsBase<T, R, M> & ArgumentOptionsExtra<T>;
 
-export class Argument<T extends ArgumentType, R extends boolean, M>
-implements ArgumentOptionsBase<T, R, M>
-{
+export class Argument<T extends ArgumentType, R extends boolean, M> implements ArgumentOptionsBase<T, R, M> {
 	/**
 	 * The type of argument. For example, `ArgumentType.User` will require
 	 * the executor to provide a `User`
@@ -241,7 +239,7 @@ implements ArgumentOptionsBase<T, R, M>
 
 		/* eslint-disable @typescript-eslint/ban-ts-comment */
 
-		if ('autocomplete' in options && !options.autocomplete) {
+		if ('autocomplete' in options) {
 			this.options.autocomplete = options.autocomplete;
 		}
 
@@ -297,6 +295,7 @@ implements ArgumentOptionsBase<T, R, M>
 		}
 
 		let mapped = false;
+		// @ts-expect-error - This is a valid cast
 		let argument = ((
 			source.options as CommandInteractionOptionResolver<'cached'>
 		)[ARGUMENT_TYPE_TO_FUNCTION_NAME[this.type]](
@@ -311,8 +310,8 @@ implements ArgumentOptionsBase<T, R, M>
 				value:
 					typeof this.default === 'function'
 						? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-						  // @ts-ignore
-						  await this.default(source)
+						// @ts-ignore
+						await this.default(source)
 						: this.default,
 			};
 		}
@@ -357,7 +356,7 @@ implements ArgumentOptionsBase<T, R, M>
 			type: (this.type === ArgumentType.Member
 				? ArgumentType.User
 				: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-				  this.type) as any,
+				this.type) as any,
 			name: this.name,
 			description: this.description,
 			required: this.required ?? true,
